@@ -1,6 +1,7 @@
 import { postRouter } from "~/server/api/routers/post";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { seoRouter } from "./routers/seo";
+import { aboutUsRouter } from "./routers/aboutUs";
 
 /**
  * This is the primary router for your server.
@@ -9,6 +10,7 @@ import { seoRouter } from "./routers/seo";
  */
 export const appRouter = createTRPCRouter({
   post: postRouter,
+  aboutUs: aboutUsRouter,
   seo: seoRouter,
 });
 

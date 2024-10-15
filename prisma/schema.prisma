@@ -35,12 +35,13 @@ model SeoSettings {
   description String
 }
 
-
 model AboutUs {
   id        Int      @id @default(autoincrement())
   content   String
+  isActive  Boolean  @default(false) // Track if the entry is active
   updatedAt DateTime @updatedAt
 }
+
 
 
 model Services {
