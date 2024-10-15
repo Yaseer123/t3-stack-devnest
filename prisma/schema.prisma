@@ -15,6 +15,46 @@ model Post {
     name      String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-
     @@index([name])
+}
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  phone     String?  // phone is optional
+  message   String
+  createdAt DateTime @default(now())
+}
+
+
+model SeoSettings {
+  id          Int      @id @default(autoincrement())
+  pagePath    String   @unique // Mark this field as unique
+  title       String
+  description String
+}
+
+
+model AboutUs {
+  id        Int      @id @default(autoincrement())
+  content   String
+  updatedAt DateTime @updatedAt
+}
+
+
+model Services {
+  id          Int      @id @default(autoincrement())
+  content     String
+  updatedAt   DateTime @updatedAt
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([updatedAt])
 }
