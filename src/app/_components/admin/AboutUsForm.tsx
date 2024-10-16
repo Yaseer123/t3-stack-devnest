@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { api } from "~/trpc/react"; // Your tRPC client setup
 
-// Define the AboutUs interface
+// Define the AboutUsEntry interface
 interface AboutUsEntry {
   id: number;
   content: string;
@@ -24,6 +24,11 @@ const AboutUsManagement = () => {
 
   // Mutation for deleting About Us entry
   const deleteAboutUs = api.aboutUs.deleteAboutUs.useMutation({
+    onSuccess: () => void refetch(), // Explicitly ignore returned promise
+  });
+
+  // Mutation for setting an About Us entry as active
+  const setActiveAboutUs = api.aboutUs.setActiveAboutUs.useMutation({
     onSuccess: () => void refetch(), // Explicitly ignore returned promise
   });
 
@@ -49,6 +54,11 @@ const AboutUsManagement = () => {
     ) {
       deleteAboutUs.mutate({ id });
     }
+  };
+
+  // Handle setting an entry as active
+  const handleSetActive = (id: number) => {
+    setActiveAboutUs.mutate({ id });
   };
 
   return (
@@ -110,6 +120,17 @@ const AboutUsManagement = () => {
                 className="rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
               >
                 Delete
+              </button>
+              <button
+                onClick={() => handleSetActive(aboutUs.id)}
+                className={`px-4 py-2 font-bold text-white ${
+                  aboutUs.isActive
+                    ? "bg-green-500"
+                    : "bg-blue-500 hover:bg-blue-700"
+                }`}
+                disabled={aboutUs.isActive}
+              >
+                {aboutUs.isActive ? "Active" : "Set Active"}
               </button>
             </div>
           </li>

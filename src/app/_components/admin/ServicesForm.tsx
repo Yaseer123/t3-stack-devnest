@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { api } from "~/trpc/react"; // Your tRPC client setup
 
-// Define the Services interface
+// Define the ServicesEntry interface
 interface ServicesEntry {
   id: number;
   content: string;
@@ -28,6 +28,11 @@ const ServicesManagement = () => {
     onSuccess: () => void refetch(), // Explicitly ignore returned promise
   });
 
+  // Mutation for setting a Services entry as active
+  const setActiveServices = api.services.setActiveServices.useMutation({
+    onSuccess: () => void refetch(), // Explicitly ignore returned promise
+  });
+
   // Handle form submission to add/update Services entry
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +55,11 @@ const ServicesManagement = () => {
     ) {
       deleteServices.mutate({ id });
     }
+  };
+
+  // Handle setting an entry as active
+  const handleSetActive = (id: number) => {
+    setActiveServices.mutate({ id });
   };
 
   return (
@@ -111,6 +121,17 @@ const ServicesManagement = () => {
                 className="rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
               >
                 Delete
+              </button>
+              <button
+                onClick={() => handleSetActive(services.id)}
+                className={`px-4 py-2 font-bold text-white ${
+                  services.isActive
+                    ? "bg-green-500"
+                    : "bg-blue-500 hover:bg-blue-700"
+                }`}
+                disabled={services.isActive}
+              >
+                {services.isActive ? "Active" : "Set Active"}
               </button>
             </div>
           </li>
