@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { api } from "~/trpc/react"; // Your tRPC client setup
 
 interface AboutUs {
@@ -12,9 +12,8 @@ interface AboutUs {
 const AboutUsManagement = () => {
   const [content, setContent] = useState("");
   const [currentEditId, setCurrentEditId] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch all existing About Us entries
+  // Fetch existing About Us content
   const {
     data: aboutUsList,
     refetch,
@@ -25,41 +24,50 @@ const AboutUsManagement = () => {
   const upsertAboutUs = api.aboutUs.upsertAboutUs.useMutation({
     onSuccess: () => {
       refetch();
-      setIsLoading(false);
+      setContent(""); // Clear form after successful upsert
+      setCurrentEditId(null); // Clear current editing state
     },
   });
 
-  // Set an entry as active
-  const setActiveAboutUs = api.aboutUs.setActiveAboutUs.useMutation({
-    onSuccess: () => refetch(),
-  });
-
-  // Delete a About Us entry
+  // Delete About Us content
   const deleteAboutUs = api.aboutUs.deleteAboutUs.useMutation({
     onSuccess: () => refetch(),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Set active About Us
+  const setActiveAboutUs = api.aboutUs.setActiveAboutUs.useMutation({
+    onSuccess: () => refetch(),
+  });
+
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true); // Set loading state when submitting
-    upsertAboutUs.mutate({ content, id: currentEditId ?? undefined });
-    setContent(""); // Reset content after submitting
-    setCurrentEditId(null); // Reset current edit ID
+    try {
+      await upsertAboutUs.mutateAsync({
+        content,
+        id: currentEditId ?? undefined,
+      });
+    } catch (error) {
+      console.error("Error upserting About Us content:", error);
+    }
   };
 
+  // Handle Edit action
   const handleEdit = (aboutUs: AboutUs) => {
     setContent(aboutUs.content);
-    setCurrentEditId(aboutUs.id); // Set current edit ID
+    setCurrentEditId(aboutUs.id);
   };
 
-  const handleSetActive = (id: number) => {
-    setActiveAboutUs.mutate({ id });
-  };
-
+  // Handle Delete action
   const handleDelete = (id: number) => {
     if (window.confirm("Are you sure you want to delete this entry?")) {
-      deleteAboutUs.mutate({ id });
+      void deleteAboutUs.mutateAsync({ id }); // Avoid floating promise error
     }
+  };
+
+  // Handle Set Active action
+  const handleSetActive = (id: number) => {
+    void setActiveAboutUs.mutateAsync({ id }); // Avoid floating promise error
   };
 
   return (
@@ -83,7 +91,6 @@ const AboutUsManagement = () => {
         </button>
       </form>
 
-      {/* Show loading state while fetching data */}
       {isFetching ? (
         <p>Loading...</p>
       ) : (
@@ -95,29 +102,29 @@ const AboutUsManagement = () => {
             {aboutUsList?.map((aboutUs: AboutUs) => (
               <li key={aboutUs.id} className="mb-4 rounded border p-4">
                 <p>{aboutUs.content}</p>
-                <div className="flex space-x-4">
+                <div className="mt-2 flex space-x-2">
                   <button
                     onClick={() => handleEdit(aboutUs)}
-                    className="mt-2 bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-700"
+                    className="bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-700"
                   >
                     Edit
                   </button>
                   <button
+                    onClick={() => handleDelete(aboutUs.id)}
+                    className="bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                  <button
                     onClick={() => handleSetActive(aboutUs.id)}
-                    className={`mt-2 px-4 py-2 font-bold text-white ${
+                    className={`px-4 py-2 font-bold text-white ${
                       aboutUs.isActive
                         ? "bg-green-500"
                         : "bg-blue-500 hover:bg-blue-700"
                     }`}
-                    disabled={aboutUs.isActive} // Disable if already active
+                    disabled={aboutUs.isActive}
                   >
                     {aboutUs.isActive ? "Active" : "Set Active"}
-                  </button>
-                  <button
-                    onClick={() => handleDelete(aboutUs.id)}
-                    className="mt-2 bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
-                  >
-                    Delete
                   </button>
                 </div>
               </li>

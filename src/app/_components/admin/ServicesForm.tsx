@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { api } from "~/trpc/react"; // Your tRPC client setup
 
 interface Services {
@@ -12,9 +12,8 @@ interface Services {
 const ServicesManagement = () => {
   const [content, setContent] = useState("");
   const [currentEditId, setCurrentEditId] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch all existing Services entries
+  // Fetch existing Services content
   const {
     data: servicesList,
     refetch,
@@ -25,41 +24,50 @@ const ServicesManagement = () => {
   const upsertServices = api.services.upsertServices.useMutation({
     onSuccess: () => {
       refetch();
-      setIsLoading(false);
+      setContent(""); // Clear form after successful upsert
+      setCurrentEditId(null); // Clear current editing state
     },
   });
 
-  // Set an entry as active
-  const setActiveServices = api.services.setActiveServices.useMutation({
-    onSuccess: () => refetch(),
-  });
-
-  // Delete a Services entry
+  // Delete Services content
   const deleteServices = api.services.deleteServices.useMutation({
     onSuccess: () => refetch(),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Set active Services
+  const setActiveServices = api.services.setActiveServices.useMutation({
+    onSuccess: () => refetch(),
+  });
+
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true); // Set loading state when submitting
-    upsertServices.mutate({ content, id: currentEditId ?? undefined });
-    setContent(""); // Reset content after submitting
-    setCurrentEditId(null); // Reset current edit ID
+    try {
+      await upsertServices.mutateAsync({
+        content,
+        id: currentEditId ?? undefined,
+      });
+    } catch (error) {
+      console.error("Error upserting Services content:", error);
+    }
   };
 
+  // Handle Edit action
   const handleEdit = (services: Services) => {
     setContent(services.content);
-    setCurrentEditId(services.id); // Set current edit ID
+    setCurrentEditId(services.id);
   };
 
-  const handleSetActive = (id: number) => {
-    setActiveServices.mutate({ id });
-  };
-
+  // Handle Delete action
   const handleDelete = (id: number) => {
     if (window.confirm("Are you sure you want to delete this entry?")) {
-      deleteServices.mutate({ id });
+      void deleteServices.mutateAsync({ id }); // Avoid floating promise error
     }
+  };
+
+  // Handle Set Active action
+  const handleSetActive = (id: number) => {
+    void setActiveServices.mutateAsync({ id }); // Avoid floating promise error
   };
 
   return (
@@ -83,7 +91,6 @@ const ServicesManagement = () => {
         </button>
       </form>
 
-      {/* Show loading state while fetching data */}
       {isFetching ? (
         <p>Loading...</p>
       ) : (
@@ -95,29 +102,29 @@ const ServicesManagement = () => {
             {servicesList?.map((services: Services) => (
               <li key={services.id} className="mb-4 rounded border p-4">
                 <p>{services.content}</p>
-                <div className="flex space-x-4">
+                <div className="mt-2 flex space-x-2">
                   <button
                     onClick={() => handleEdit(services)}
-                    className="mt-2 bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-700"
+                    className="bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-700"
                   >
                     Edit
                   </button>
                   <button
+                    onClick={() => handleDelete(services.id)}
+                    className="bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                  <button
                     onClick={() => handleSetActive(services.id)}
-                    className={`mt-2 px-4 py-2 font-bold text-white ${
+                    className={`px-4 py-2 font-bold text-white ${
                       services.isActive
                         ? "bg-green-500"
                         : "bg-blue-500 hover:bg-blue-700"
                     }`}
-                    disabled={services.isActive} // Disable if already active
+                    disabled={services.isActive}
                   >
                     {services.isActive ? "Active" : "Set Active"}
-                  </button>
-                  <button
-                    onClick={() => handleDelete(services.id)}
-                    className="mt-2 bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
-                  >
-                    Delete
                   </button>
                 </div>
               </li>
