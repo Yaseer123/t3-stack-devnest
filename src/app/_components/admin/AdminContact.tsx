@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { api } from "~/trpc/react";
+import { format } from "date-fns"; // For formatting the date
 
 const AdminContactPage = () => {
   const {
@@ -12,7 +13,7 @@ const AdminContactPage = () => {
 
   const updateContact = api.contacts.updateContact.useMutation({
     onSuccess: async () => {
-      await refetch(); // Refetch contacts after a successful update with await
+      await refetch(); // Refetch contacts after a successful update
     },
   });
 
@@ -59,6 +60,8 @@ const AdminContactPage = () => {
             <th className="border px-4 py-2">Phone</th>
             <th className="border px-4 py-2">Message</th>
             <th className="border px-4 py-2">Notes</th>
+            <th className="border px-4 py-2">Contact Date</th>{" "}
+            {/* Add the contact date column */}
           </tr>
         </thead>
         <tbody>
@@ -67,7 +70,7 @@ const AdminContactPage = () => {
               <td className="border px-4 py-2 text-center">
                 <input
                   type="checkbox"
-                  className="h-6 w-6" // Increase checkbox size
+                  className="h-6 w-6"
                   checked={contact.contacted}
                   onChange={(e) =>
                     handleContactedChange(contact.id, e.target.checked)
@@ -76,14 +79,10 @@ const AdminContactPage = () => {
               </td>
               <td className="border px-4 py-2">{contact.name}</td>
               <td className="border px-4 py-2">{contact.email}</td>
-              <td className="border px-4 py-2">
-                {contact.phone ?? "N/A"}
-              </td>{" "}
-              {/* Replaced || with ?? */}
+              <td className="border px-4 py-2">{contact.phone ?? "N/A"}</td>
               <td className="border px-4 py-2">
                 {contact.message ?? "No message"}
-              </td>{" "}
-              {/* Replaced || with ?? */}
+              </td>
               <td className="border px-4 py-2">
                 {editingContactId === contact.id ? (
                   <div>
@@ -112,18 +111,22 @@ const AdminContactPage = () => {
                   </div>
                 ) : (
                   <>
-                    {contact.notes ?? "No notes"} {/* Replaced || with ?? */}
+                    {contact.notes ?? "No notes"}
                     <button
                       className="ml-2 rounded bg-yellow-500 px-4 py-2 text-white"
                       onClick={() => {
                         setEditingContactId(contact.id);
-                        setNotes(contact.notes ?? ""); // Replaced || with ??
+                        setNotes(contact.notes ?? "");
                       }}
                     >
                       Edit Notes
                     </button>
                   </>
                 )}
+              </td>
+              <td className="border px-4 py-2">
+                {/* Format the createdAt field */}
+                {format(new Date(contact.createdAt), "yyyy-MM-dd HH:mm:ss")}
               </td>
             </tr>
           ))}
