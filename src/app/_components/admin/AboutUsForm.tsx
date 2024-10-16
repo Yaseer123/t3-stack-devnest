@@ -22,15 +22,17 @@ const AboutUsManagement = () => {
 
   // Upsert About Us content
   const upsertAboutUs = api.aboutUs.upsertAboutUs.useMutation({
-    onSuccess: () => {
-      refetch();
+    onSuccess: async () => {
+      await refetch(); // Ensure this promise is awaited
       setIsLoading(false);
     },
   });
 
   // Set an entry as active
   const setActiveAboutUs = api.aboutUs.setActiveAboutUs.useMutation({
-    onSuccess: () => refetch(),
+    onSuccess: async () => {
+      await refetch(); // Ensure this promise is awaited
+    },
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,7 +90,7 @@ const AboutUsManagement = () => {
               <li key={aboutUs.id} className="mb-4 rounded border p-4">
                 <p>{aboutUs.content}</p>
                 <button
-                  onClick={() => handleSetActive(aboutUs.id)}
+                  onClick={() => void handleSetActive(aboutUs.id)} // Use void operator if you don't want to await the result
                   className={`mt-2 px-4 py-2 font-bold text-white ${
                     aboutUs.isActive
                       ? "bg-green-500"
