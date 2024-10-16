@@ -46,7 +46,7 @@ const ServicesManagement = () => {
       await upsertServices.mutateAsync({
         content,
         id: currentEditId ?? undefined,
-      });
+      }); // Await mutation
     } catch (error) {
       console.error("Error upserting Services content:", error);
     }
@@ -59,15 +59,23 @@ const ServicesManagement = () => {
   };
 
   // Handle Delete action
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (window.confirm("Are you sure you want to delete this entry?")) {
-      void deleteServices.mutateAsync({ id }); // Avoid floating promise error
+      try {
+        await deleteServices.mutateAsync({ id }); // Await deletion to handle promise
+      } catch (error) {
+        console.error("Error deleting Services entry:", error);
+      }
     }
   };
 
   // Handle Set Active action
-  const handleSetActive = (id: number) => {
-    void setActiveServices.mutateAsync({ id }); // Avoid floating promise error
+  const handleSetActive = async (id: number) => {
+    try {
+      await setActiveServices.mutateAsync({ id }); // Await mutation for setting active
+    } catch (error) {
+      console.error("Error setting Services as active:", error);
+    }
   };
 
   return (

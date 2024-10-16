@@ -46,7 +46,7 @@ const AboutUsManagement = () => {
       await upsertAboutUs.mutateAsync({
         content,
         id: currentEditId ?? undefined,
-      });
+      }); // Await mutation
     } catch (error) {
       console.error("Error upserting About Us content:", error);
     }
@@ -59,15 +59,23 @@ const AboutUsManagement = () => {
   };
 
   // Handle Delete action
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (window.confirm("Are you sure you want to delete this entry?")) {
-      void deleteAboutUs.mutateAsync({ id }); // Avoid floating promise error
+      try {
+        await deleteAboutUs.mutateAsync({ id }); // Await deletion to handle promise
+      } catch (error) {
+        console.error("Error deleting About Us entry:", error);
+      }
     }
   };
 
   // Handle Set Active action
-  const handleSetActive = (id: number) => {
-    void setActiveAboutUs.mutateAsync({ id }); // Avoid floating promise error
+  const handleSetActive = async (id: number) => {
+    try {
+      await setActiveAboutUs.mutateAsync({ id }); // Await mutation for setting active
+    } catch (error) {
+      console.error("Error setting About Us as active:", error);
+    }
   };
 
   return (
