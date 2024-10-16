@@ -76,8 +76,14 @@ const AdminContactPage = () => {
               </td>
               <td className="border px-4 py-2">{contact.name}</td>
               <td className="border px-4 py-2">{contact.email}</td>
-              <td className="border px-4 py-2">{contact.phone || "N/A"}</td>
-              <td className="border px-4 py-2">{contact.message}</td>
+              <td className="border px-4 py-2">
+                {contact.phone ?? "N/A"}
+              </td>{" "}
+              {/* Replaced || with ?? */}
+              <td className="border px-4 py-2">
+                {contact.message ?? "No message"}
+              </td>{" "}
+              {/* Replaced || with ?? */}
               <td className="border px-4 py-2">
                 {editingContactId === contact.id ? (
                   <div>
@@ -106,12 +112,12 @@ const AdminContactPage = () => {
                   </div>
                 ) : (
                   <>
-                    {contact.notes || "No notes"}
+                    {contact.notes ?? "No notes"} {/* Replaced || with ?? */}
                     <button
                       className="ml-2 rounded bg-yellow-500 px-4 py-2 text-white"
                       onClick={() => {
                         setEditingContactId(contact.id);
-                        setNotes(contact.notes || "");
+                        setNotes(contact.notes ?? ""); // Replaced || with ??
                       }}
                     >
                       Edit Notes
