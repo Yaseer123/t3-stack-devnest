@@ -2,144 +2,120 @@
 import React, { useState } from "react";
 import { api } from "~/trpc/react"; // Your tRPC client setup
 
-interface Services {
+// Define the Services interface
+interface ServicesEntry {
   id: number;
   content: string;
   isActive: boolean;
-  updatedAt: Date;
 }
 
 const ServicesManagement = () => {
   const [content, setContent] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
   const [currentEditId, setCurrentEditId] = useState<number | null>(null);
 
-  // Fetch existing Services content
-  const {
-    data: servicesList,
-    refetch,
-    isLoading: isFetching,
-  } = api.services.getAllServices.useQuery();
+  // Fetch all Services entries
+  const { data: servicesList, refetch } =
+    api.services.getAllServices.useQuery();
 
-  // Upsert Services content
+  // Mutation for upserting Services entries
   const upsertServices = api.services.upsertServices.useMutation({
-    onSuccess: () => {
-      refetch();
-      setContent(""); // Clear form after successful upsert
-      setCurrentEditId(null); // Clear current editing state
-    },
+    onSuccess: () => void refetch(), // Explicitly ignore returned promise
   });
 
-  // Delete Services content
+  // Mutation for deleting Services entry
   const deleteServices = api.services.deleteServices.useMutation({
-    onSuccess: () => refetch(),
+    onSuccess: () => void refetch(), // Explicitly ignore returned promise
   });
 
-  // Set active Services
-  const setActiveServices = api.services.setActiveServices.useMutation({
-    onSuccess: () => refetch(),
-  });
-
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Handle form submission to add/update Services entry
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await upsertServices.mutateAsync({
-        content,
-        id: currentEditId ?? undefined,
-      }); // Await mutation
-    } catch (error) {
-      console.error("Error upserting Services content:", error);
-    }
+    upsertServices.mutate({ content, id: currentEditId ?? undefined });
+    setContent("");
+    setIsEditing(false); // Reset editing state
   };
 
-  // Handle Edit action
-  const handleEdit = (services: Services) => {
+  // Handle editing a Services entry
+  const handleEdit = (services: ServicesEntry) => {
     setContent(services.content);
-    setCurrentEditId(services.id);
+    setIsEditing(true);
+    setCurrentEditId(services.id); // Set current editing Services ID
   };
 
-  // Handle Delete action
-  const handleDelete = async (id: number) => {
-    if (window.confirm("Are you sure you want to delete this entry?")) {
-      try {
-        await deleteServices.mutateAsync({ id }); // Await deletion to handle promise
-      } catch (error) {
-        console.error("Error deleting Services entry:", error);
-      }
-    }
-  };
-
-  // Handle Set Active action
-  const handleSetActive = async (id: number) => {
-    try {
-      await setActiveServices.mutateAsync({ id }); // Await mutation for setting active
-    } catch (error) {
-      console.error("Error setting Services as active:", error);
+  // Handle confirming deletion
+  const handleDelete = (id: number) => {
+    if (
+      window.confirm("Are you sure you want to delete this Services entry?")
+    ) {
+      deleteServices.mutate({ id });
     }
   };
 
   return (
     <div className="container mx-auto px-4 py-10">
-      <h1 className="mb-6 text-2xl font-semibold">Manage Services</h1>
+      <h1 className="mb-6 text-center text-2xl font-semibold">
+        Manage Services Entries
+      </h1>
 
-      {/* Form to add new content */}
-      <form onSubmit={handleSubmit} className="rounded bg-white p-6 shadow-md">
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Write the Services content here..."
-          className="h-40 w-full rounded border px-3 py-2"
-          required
-        />
-        <button
-          type="submit"
-          className="mt-4 rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-        >
-          {currentEditId ? "Update Services" : "Add New Services Entry"}
-        </button>
+      {/* Services Form */}
+      <form
+        onSubmit={handleSubmit}
+        className="mx-auto mb-6 max-w-lg rounded bg-white px-8 pb-8 pt-6 shadow-md"
+      >
+        <div className="mb-6">
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            Services Content
+          </label>
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Write the Services content here..."
+            className="h-24 w-full rounded border px-3 py-2"
+            required
+          />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <button
+            type="submit"
+            className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+          >
+            {isEditing ? "Update Services" : "Save Services"}
+          </button>
+        </div>
       </form>
 
-      {isFetching ? (
-        <p>Loading...</p>
-      ) : (
-        <>
-          <h2 className="mt-6 text-xl font-semibold">
-            Existing Services Entries
-          </h2>
-          <ul className="mt-4">
-            {servicesList?.map((services: Services) => (
-              <li key={services.id} className="mb-4 rounded border p-4">
-                <p>{services.content}</p>
-                <div className="mt-2 flex space-x-2">
-                  <button
-                    onClick={() => handleEdit(services)}
-                    className="bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-700"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(services.id)}
-                    className="bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
-                  >
-                    Delete
-                  </button>
-                  <button
-                    onClick={() => handleSetActive(services.id)}
-                    className={`px-4 py-2 font-bold text-white ${
-                      services.isActive
-                        ? "bg-green-500"
-                        : "bg-blue-500 hover:bg-blue-700"
-                    }`}
-                    disabled={services.isActive}
-                  >
-                    {services.isActive ? "Active" : "Set Active"}
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+      {/* Services List */}
+      <h2 className="mb-4 text-center text-xl font-semibold">
+        Existing Services Entries
+      </h2>
+      <ul className="mx-auto max-w-lg space-y-4">
+        {servicesList?.map((services: ServicesEntry) => (
+          <li
+            key={services.id}
+            className="flex items-center justify-between rounded bg-white p-4 shadow-md"
+          >
+            <div>
+              <p className="text-lg">{services.content}</p>
+            </div>
+            <div className="space-x-2">
+              <button
+                onClick={() => handleEdit(services)}
+                className="rounded bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-700"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(services.id)}
+                className="rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

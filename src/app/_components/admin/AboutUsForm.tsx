@@ -2,144 +2,119 @@
 import React, { useState } from "react";
 import { api } from "~/trpc/react"; // Your tRPC client setup
 
-interface AboutUs {
+// Define the AboutUs interface
+interface AboutUsEntry {
   id: number;
   content: string;
   isActive: boolean;
-  updatedAt: Date;
 }
 
 const AboutUsManagement = () => {
   const [content, setContent] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
   const [currentEditId, setCurrentEditId] = useState<number | null>(null);
 
-  // Fetch existing About Us content
-  const {
-    data: aboutUsList,
-    refetch,
-    isLoading: isFetching,
-  } = api.aboutUs.getAllAboutUs.useQuery();
+  // Fetch all About Us entries
+  const { data: aboutUsList, refetch } = api.aboutUs.getAllAboutUs.useQuery();
 
-  // Upsert About Us content
+  // Mutation for upserting About Us entries
   const upsertAboutUs = api.aboutUs.upsertAboutUs.useMutation({
-    onSuccess: () => {
-      refetch();
-      setContent(""); // Clear form after successful upsert
-      setCurrentEditId(null); // Clear current editing state
-    },
+    onSuccess: () => void refetch(), // Explicitly ignore returned promise
   });
 
-  // Delete About Us content
+  // Mutation for deleting About Us entry
   const deleteAboutUs = api.aboutUs.deleteAboutUs.useMutation({
-    onSuccess: () => refetch(),
+    onSuccess: () => void refetch(), // Explicitly ignore returned promise
   });
 
-  // Set active About Us
-  const setActiveAboutUs = api.aboutUs.setActiveAboutUs.useMutation({
-    onSuccess: () => refetch(),
-  });
-
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Handle form submission to add/update About Us entry
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await upsertAboutUs.mutateAsync({
-        content,
-        id: currentEditId ?? undefined,
-      }); // Await mutation
-    } catch (error) {
-      console.error("Error upserting About Us content:", error);
-    }
+    upsertAboutUs.mutate({ content, id: currentEditId ?? undefined });
+    setContent("");
+    setIsEditing(false); // Reset editing state
   };
 
-  // Handle Edit action
-  const handleEdit = (aboutUs: AboutUs) => {
+  // Handle editing an About Us entry
+  const handleEdit = (aboutUs: AboutUsEntry) => {
     setContent(aboutUs.content);
-    setCurrentEditId(aboutUs.id);
+    setIsEditing(true);
+    setCurrentEditId(aboutUs.id); // Set current editing About Us ID
   };
 
-  // Handle Delete action
-  const handleDelete = async (id: number) => {
-    if (window.confirm("Are you sure you want to delete this entry?")) {
-      try {
-        await deleteAboutUs.mutateAsync({ id }); // Await deletion to handle promise
-      } catch (error) {
-        console.error("Error deleting About Us entry:", error);
-      }
-    }
-  };
-
-  // Handle Set Active action
-  const handleSetActive = async (id: number) => {
-    try {
-      await setActiveAboutUs.mutateAsync({ id }); // Await mutation for setting active
-    } catch (error) {
-      console.error("Error setting About Us as active:", error);
+  // Handle confirming deletion
+  const handleDelete = (id: number) => {
+    if (
+      window.confirm("Are you sure you want to delete this About Us entry?")
+    ) {
+      deleteAboutUs.mutate({ id });
     }
   };
 
   return (
     <div className="container mx-auto px-4 py-10">
-      <h1 className="mb-6 text-2xl font-semibold">Manage About Us</h1>
+      <h1 className="mb-6 text-center text-2xl font-semibold">
+        Manage About Us Entries
+      </h1>
 
-      {/* Form to add new content */}
-      <form onSubmit={handleSubmit} className="rounded bg-white p-6 shadow-md">
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Write the About Us content here..."
-          className="h-40 w-full rounded border px-3 py-2"
-          required
-        />
-        <button
-          type="submit"
-          className="mt-4 rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-        >
-          {currentEditId ? "Update About Us" : "Add New About Us Entry"}
-        </button>
+      {/* About Us Form */}
+      <form
+        onSubmit={handleSubmit}
+        className="mx-auto mb-6 max-w-lg rounded bg-white px-8 pb-8 pt-6 shadow-md"
+      >
+        <div className="mb-6">
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            About Us Content
+          </label>
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Write the About Us content here..."
+            className="h-24 w-full rounded border px-3 py-2"
+            required
+          />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <button
+            type="submit"
+            className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+          >
+            {isEditing ? "Update About Us" : "Save About Us"}
+          </button>
+        </div>
       </form>
 
-      {isFetching ? (
-        <p>Loading...</p>
-      ) : (
-        <>
-          <h2 className="mt-6 text-xl font-semibold">
-            Existing About Us Entries
-          </h2>
-          <ul className="mt-4">
-            {aboutUsList?.map((aboutUs: AboutUs) => (
-              <li key={aboutUs.id} className="mb-4 rounded border p-4">
-                <p>{aboutUs.content}</p>
-                <div className="mt-2 flex space-x-2">
-                  <button
-                    onClick={() => handleEdit(aboutUs)}
-                    className="bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-700"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(aboutUs.id)}
-                    className="bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
-                  >
-                    Delete
-                  </button>
-                  <button
-                    onClick={() => handleSetActive(aboutUs.id)}
-                    className={`px-4 py-2 font-bold text-white ${
-                      aboutUs.isActive
-                        ? "bg-green-500"
-                        : "bg-blue-500 hover:bg-blue-700"
-                    }`}
-                    disabled={aboutUs.isActive}
-                  >
-                    {aboutUs.isActive ? "Active" : "Set Active"}
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+      {/* About Us List */}
+      <h2 className="mb-4 text-center text-xl font-semibold">
+        Existing About Us Entries
+      </h2>
+      <ul className="mx-auto max-w-lg space-y-4">
+        {aboutUsList?.map((aboutUs: AboutUsEntry) => (
+          <li
+            key={aboutUs.id}
+            className="flex items-center justify-between rounded bg-white p-4 shadow-md"
+          >
+            <div>
+              <p className="text-lg">{aboutUs.content}</p>
+            </div>
+            <div className="space-x-2">
+              <button
+                onClick={() => handleEdit(aboutUs)}
+                className="rounded bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-700"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(aboutUs.id)}
+                className="rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
