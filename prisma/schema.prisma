@@ -24,8 +24,11 @@ model Contact {
   email     String   @unique
   phone     String?  // phone is optional
   message   String
+  contacted Boolean  @default(false) // Add this line to track if contacted
+  notes     String?  // Optional notes field
   createdAt DateTime @default(now())
 }
+
 
 
 model SeoSettings {
