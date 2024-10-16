@@ -2,27 +2,27 @@
 import React, { useState, useEffect } from "react";
 import { api } from "~/trpc/react"; // Your tRPC client setup
 
-interface AboutUs {
+interface Services {
   id: number;
   content: string;
   isActive: boolean;
   updatedAt: Date;
 }
 
-const AboutUsManagement = () => {
+const ServicesManagement = () => {
   const [content, setContent] = useState("");
   const [currentEditId, setCurrentEditId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch all existing About Us entries
+  // Fetch all existing Services entries
   const {
-    data: aboutUsList,
+    data: servicesList,
     refetch,
     isLoading: isFetching,
-  } = api.aboutUs.getAllAboutUs.useQuery();
+  } = api.services.getAllServices.useQuery();
 
-  // Upsert About Us content
-  const upsertAboutUs = api.aboutUs.upsertAboutUs.useMutation({
+  // Upsert Services content
+  const upsertServices = api.services.upsertServices.useMutation({
     onSuccess: () => {
       refetch();
       setIsLoading(false);
@@ -30,48 +30,48 @@ const AboutUsManagement = () => {
   });
 
   // Set an entry as active
-  const setActiveAboutUs = api.aboutUs.setActiveAboutUs.useMutation({
+  const setActiveServices = api.services.setActiveServices.useMutation({
     onSuccess: () => refetch(),
   });
 
-  // Delete a About Us entry
-  const deleteAboutUs = api.aboutUs.deleteAboutUs.useMutation({
+  // Delete a Services entry
+  const deleteServices = api.services.deleteServices.useMutation({
     onSuccess: () => refetch(),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true); // Set loading state when submitting
-    upsertAboutUs.mutate({ content, id: currentEditId ?? undefined });
+    upsertServices.mutate({ content, id: currentEditId ?? undefined });
     setContent(""); // Reset content after submitting
     setCurrentEditId(null); // Reset current edit ID
   };
 
-  const handleEdit = (aboutUs: AboutUs) => {
-    setContent(aboutUs.content);
-    setCurrentEditId(aboutUs.id); // Set current edit ID
+  const handleEdit = (services: Services) => {
+    setContent(services.content);
+    setCurrentEditId(services.id); // Set current edit ID
   };
 
   const handleSetActive = (id: number) => {
-    setActiveAboutUs.mutate({ id });
+    setActiveServices.mutate({ id });
   };
 
   const handleDelete = (id: number) => {
     if (window.confirm("Are you sure you want to delete this entry?")) {
-      deleteAboutUs.mutate({ id });
+      deleteServices.mutate({ id });
     }
   };
 
   return (
     <div className="container mx-auto px-4 py-10">
-      <h1 className="mb-6 text-2xl font-semibold">Manage About Us</h1>
+      <h1 className="mb-6 text-2xl font-semibold">Manage Services</h1>
 
       {/* Form to add new content */}
       <form onSubmit={handleSubmit} className="rounded bg-white p-6 shadow-md">
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Write the About Us content here..."
+          placeholder="Write the Services content here..."
           className="h-40 w-full rounded border px-3 py-2"
           required
         />
@@ -79,7 +79,7 @@ const AboutUsManagement = () => {
           type="submit"
           className="mt-4 rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
         >
-          {currentEditId ? "Update About Us" : "Add New About Us Entry"}
+          {currentEditId ? "Update Services" : "Add New Services Entry"}
         </button>
       </form>
 
@@ -89,32 +89,32 @@ const AboutUsManagement = () => {
       ) : (
         <>
           <h2 className="mt-6 text-xl font-semibold">
-            Existing About Us Entries
+            Existing Services Entries
           </h2>
           <ul className="mt-4">
-            {aboutUsList?.map((aboutUs: AboutUs) => (
-              <li key={aboutUs.id} className="mb-4 rounded border p-4">
-                <p>{aboutUs.content}</p>
+            {servicesList?.map((services: Services) => (
+              <li key={services.id} className="mb-4 rounded border p-4">
+                <p>{services.content}</p>
                 <div className="flex space-x-4">
                   <button
-                    onClick={() => handleEdit(aboutUs)}
+                    onClick={() => handleEdit(services)}
                     className="mt-2 bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-700"
                   >
                     Edit
                   </button>
                   <button
-                    onClick={() => handleSetActive(aboutUs.id)}
+                    onClick={() => handleSetActive(services.id)}
                     className={`mt-2 px-4 py-2 font-bold text-white ${
-                      aboutUs.isActive
+                      services.isActive
                         ? "bg-green-500"
                         : "bg-blue-500 hover:bg-blue-700"
                     }`}
-                    disabled={aboutUs.isActive} // Disable if already active
+                    disabled={services.isActive} // Disable if already active
                   >
-                    {aboutUs.isActive ? "Active" : "Set Active"}
+                    {services.isActive ? "Active" : "Set Active"}
                   </button>
                   <button
-                    onClick={() => handleDelete(aboutUs.id)}
+                    onClick={() => handleDelete(services.id)}
                     className="mt-2 bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
                   >
                     Delete
@@ -129,4 +129,4 @@ const AboutUsManagement = () => {
   );
 };
 
-export default AboutUsManagement;
+export default ServicesManagement;

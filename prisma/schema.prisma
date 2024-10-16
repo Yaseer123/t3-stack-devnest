@@ -45,9 +45,10 @@ model AboutUs {
 
 
 model Services {
-  id          Int      @id @default(autoincrement())
-  content     String
-  updatedAt   DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  content   String
+  isActive  Boolean  @default(false) // Track if the entry is active
+  updatedAt DateTime @updatedAt
 }
 
 model Project {

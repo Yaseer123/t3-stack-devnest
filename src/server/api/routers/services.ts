@@ -1,27 +1,27 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
-export const aboutUsRouter = createTRPCRouter({
-  // Fetch all About Us entries
-  getAllAboutUs: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.db.aboutUs.findMany({
+export const servicesRouter = createTRPCRouter({
+  // Fetch all Services entries
+  getAllServices: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.db.services.findMany({
       orderBy: {
         updatedAt: "desc",
       },
     });
   }),
 
-  // Fetch a specific About Us entry by ID
-  getAboutUsById: publicProcedure
+  // Fetch a specific Services entry by ID
+  getServicesById: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
-      return await ctx.db.aboutUs.findUnique({
+      return await ctx.db.services.findUnique({
         where: { id: input.id },
       });
     }),
 
-  // Upsert About Us content
-  upsertAboutUs: publicProcedure
+  // Upsert Services content
+  upsertServices: publicProcedure
     .input(
       z.object({
         id: z.number().optional(), // ID is optional for creating new entries
@@ -29,33 +29,33 @@ export const aboutUsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db.aboutUs.upsert({
+      return await ctx.db.services.upsert({
         where: { id: input.id ?? 0 }, // Insert if ID doesn't exist
         update: { content: input.content },
         create: { content: input.content },
       });
     }),
 
-  // Delete About Us entry by ID
-  deleteAboutUs: publicProcedure
+  // Delete Services entry by ID
+  deleteServices: publicProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db.aboutUs.delete({
+      return await ctx.db.services.delete({
         where: { id: input.id },
       });
     }),
 
-  // Set a specific About Us entry as active
-  setActiveAboutUs: publicProcedure
+  // Set a specific Services entry as active
+  setActiveServices: publicProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
       // Set all other entries to inactive
-      await ctx.db.aboutUs.updateMany({
+      await ctx.db.services.updateMany({
         data: { isActive: false },
       });
 
       // Set the selected entry as active
-      return await ctx.db.aboutUs.update({
+      return await ctx.db.services.update({
         where: { id: input.id },
         data: { isActive: true },
       });
