@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { api } from "~/trpc/react"; // Your tRPC client setup
+import { Button } from "~/components/ui/button"; // Use Button component
 
 // Define the AboutUsEntry interface
 interface AboutUsEntry {
@@ -13,6 +14,9 @@ const AboutUsManagement = () => {
   const [content, setContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [currentEditId, setCurrentEditId] = useState<number | null>(null);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<
+    number | null
+  >(null); // New state
 
   // Fetch all About Us entries
   const { data: aboutUsList, refetch } = api.aboutUs.getAllAboutUs.useQuery();
@@ -24,13 +28,21 @@ const AboutUsManagement = () => {
 
   // Mutation for deleting About Us entry
   const deleteAboutUs = api.aboutUs.deleteAboutUs.useMutation({
-    onSuccess: () => void refetch(), // Explicitly ignore returned promise
+    onSuccess: () => {
+      refetch(); // Explicitly ignore returned promise
+      setShowDeleteConfirmation(null); // Reset confirmation state after deletion
+    },
   });
 
   // Mutation for setting an About Us entry as active
   const setActiveAboutUs = api.aboutUs.setActiveAboutUs.useMutation({
     onSuccess: () => void refetch(), // Explicitly ignore returned promise
   });
+
+  // Define the handleSetActive function to set an entry as active
+  const handleSetActive = (id: number) => {
+    setActiveAboutUs.mutate({ id }); // Call the mutation to set the entry as active
+  };
 
   // Handle form submission to add/update About Us entry
   const handleSubmit = (e: React.FormEvent) => {
@@ -49,89 +61,89 @@ const AboutUsManagement = () => {
 
   // Handle confirming deletion
   const handleDelete = (id: number) => {
-    if (
-      window.confirm("Are you sure you want to delete this About Us entry?")
-    ) {
-      deleteAboutUs.mutate({ id });
-    }
-  };
-
-  // Handle setting an entry as active
-  const handleSetActive = (id: number) => {
-    setActiveAboutUs.mutate({ id });
+    deleteAboutUs.mutate({ id });
   };
 
   return (
     <div className="container mx-auto px-4 py-10">
-      <h1 className="mb-6 text-center text-2xl font-semibold">
+      <h1 className="mb-6 text-center text-2xl font-semibold dark:text-white">
         Manage About Us Entries
       </h1>
 
       {/* About Us Form */}
       <form
         onSubmit={handleSubmit}
-        className="mx-auto mb-6 max-w-lg rounded bg-white px-8 pb-8 pt-6 shadow-md"
+        className="mx-auto mb-6 max-w-lg rounded bg-white px-8 pb-8 pt-6 shadow-md dark:bg-gray-800"
       >
         <div className="mb-6">
-          <label className="mb-2 block text-sm font-bold text-gray-700">
+          <label className="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">
             About Us Content
           </label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Write the About Us content here..."
-            className="h-24 w-full rounded border px-3 py-2"
+            className="h-24 w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white"
             required
           />
         </div>
 
         <div className="flex items-center justify-between">
-          <button
-            type="submit"
-            className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-          >
+          <Button type="submit">
             {isEditing ? "Update About Us" : "Save About Us"}
-          </button>
+          </Button>
         </div>
       </form>
 
       {/* About Us List */}
-      <h2 className="mb-4 text-center text-xl font-semibold">
+      <h2 className="mb-4 text-center text-xl font-semibold dark:text-white">
         Existing About Us Entries
       </h2>
       <ul className="mx-auto max-w-lg space-y-4">
         {aboutUsList?.map((aboutUs: AboutUsEntry) => (
           <li
             key={aboutUs.id}
-            className="flex items-center justify-between rounded bg-white p-4 shadow-md"
+            className="flex items-center justify-between rounded bg-white p-4 shadow-md dark:bg-gray-800"
           >
             <div>
-              <p className="text-lg">{aboutUs.content}</p>
+              <p className="text-lg dark:text-white">{aboutUs.content}</p>
             </div>
             <div className="space-x-2">
-              <button
-                onClick={() => handleEdit(aboutUs)}
-                className="rounded bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-700"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(aboutUs.id)}
-                className="rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
-              >
-                Delete
-              </button>
-              <button
-                onClick={() => handleSetActive(aboutUs.id)}
-                className={`px-4 py-2 font-bold text-white ${
-                  aboutUs.isActive
-                    ? "bg-green-500"
-                    : "bg-blue-500 hover:bg-blue-700"
-                }`}
-                disabled={aboutUs.isActive}
-              >
-                {aboutUs.isActive ? "Active" : "Set Active"}
-              </button>
+              {showDeleteConfirmation === aboutUs.id ? (
+                <div className="space-x-2">
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleDelete(aboutUs.id)}
+                  >
+                    Confirm Delete
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowDeleteConfirmation(null)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button variant="outline" onClick={() => handleEdit(aboutUs)}>
+                    Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => setShowDeleteConfirmation(aboutUs.id)}
+                  >
+                    Delete
+                  </Button>
+                  <Button
+                    variant="default"
+                    onClick={() => handleSetActive(aboutUs.id)}
+                    disabled={aboutUs.isActive}
+                  >
+                    {aboutUs.isActive ? "Active" : "Set Active"}
+                  </Button>
+                </>
+              )}
             </div>
           </li>
         ))}

@@ -1,5 +1,5 @@
 import React from "react";
-import AboutUsManagement from "~/app/_components/admin/AboutUsForm";
+import AboutUsManagement from "~/components/admin/AboutUsForm";
 
 const AboutUsPage = () => {
   return (

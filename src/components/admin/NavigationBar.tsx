@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
+import { ModeToggle } from "~/components/DarkMode"; // Import the ModeToggle component
 
 const NavigationBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +16,7 @@ const NavigationBar = () => {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-purple-600 to-blue-500 p-4">
+    <nav className="bg-gradient-to-r from-purple-600 to-blue-500 p-4 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo */}
         <div className="text-xl font-bold text-white">
@@ -108,8 +109,9 @@ const NavigationBar = () => {
           </li>
         </ul>
 
-        {/* User Button for authenticated users */}
+        {/* User Button and Theme Toggle for larger screens */}
         <div className="hidden items-center space-x-4 md:flex">
+          <ModeToggle /> {/* Add the mode toggle here */}
           <UserButton />
         </div>
 
@@ -209,9 +211,10 @@ const NavigationBar = () => {
         </div>
       )}
 
-      {/* UserButton in mobile view */}
+      {/* UserButton and Mode Toggle in mobile view */}
       {isOpen && (
-        <div className="mt-2 flex items-center justify-center md:hidden">
+        <div className="mt-2 flex items-center justify-center space-x-4 md:hidden">
+          <ModeToggle /> {/* Add the mode toggle here */}
           <UserButton />
         </div>
       )}

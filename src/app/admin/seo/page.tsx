@@ -1,5 +1,5 @@
 import React from "react";
-import SEOComponent from "~/app/_components/admin/SEOComponent";
+import SEOComponent from "~/components/admin/SEOComponent";
 
 const SEOPage = () => {
   return <SEOComponent />;

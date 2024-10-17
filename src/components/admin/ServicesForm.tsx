@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { api } from "~/trpc/react"; // Your tRPC client setup
+import { Button } from "~/components/ui/button"; // Use Button component
 
 // Define the ServicesEntry interface
 interface ServicesEntry {
@@ -13,6 +14,9 @@ const ServicesManagement = () => {
   const [content, setContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [currentEditId, setCurrentEditId] = useState<number | null>(null);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<
+    number | null
+  >(null); // New state for delete confirmation
 
   // Fetch all Services entries
   const { data: servicesList, refetch } =
@@ -25,12 +29,15 @@ const ServicesManagement = () => {
 
   // Mutation for deleting Services entry
   const deleteServices = api.services.deleteServices.useMutation({
-    onSuccess: () => void refetch(), // Explicitly ignore returned promise
+    onSuccess: () => {
+      refetch();
+      setShowDeleteConfirmation(null); // Reset delete confirmation after deletion
+    },
   });
 
   // Mutation for setting a Services entry as active
   const setActiveServices = api.services.setActiveServices.useMutation({
-    onSuccess: () => void refetch(), // Explicitly ignore returned promise
+    onSuccess: () => void refetch(),
   });
 
   // Handle form submission to add/update Services entry
@@ -45,94 +52,99 @@ const ServicesManagement = () => {
   const handleEdit = (services: ServicesEntry) => {
     setContent(services.content);
     setIsEditing(true);
-    setCurrentEditId(services.id); // Set current editing Services ID
+    setCurrentEditId(services.id);
   };
 
   // Handle confirming deletion
   const handleDelete = (id: number) => {
-    if (
-      window.confirm("Are you sure you want to delete this Services entry?")
-    ) {
-      deleteServices.mutate({ id });
-    }
-  };
-
-  // Handle setting an entry as active
-  const handleSetActive = (id: number) => {
-    setActiveServices.mutate({ id });
+    deleteServices.mutate({ id });
   };
 
   return (
     <div className="container mx-auto px-4 py-10">
-      <h1 className="mb-6 text-center text-2xl font-semibold">
+      <h1 className="mb-6 text-center text-2xl font-semibold dark:text-white">
         Manage Services Entries
       </h1>
 
       {/* Services Form */}
       <form
         onSubmit={handleSubmit}
-        className="mx-auto mb-6 max-w-lg rounded bg-white px-8 pb-8 pt-6 shadow-md"
+        className="mx-auto mb-6 max-w-lg rounded bg-white px-8 pb-8 pt-6 shadow-md dark:bg-gray-800"
       >
         <div className="mb-6">
-          <label className="mb-2 block text-sm font-bold text-gray-700">
+          <label className="mb-2 block text-sm font-bold text-gray-700 dark:text-gray-300">
             Services Content
           </label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Write the Services content here..."
-            className="h-24 w-full rounded border px-3 py-2"
+            className="h-24 w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white"
             required
           />
         </div>
 
         <div className="flex items-center justify-between">
-          <button
-            type="submit"
-            className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-          >
+          <Button type="submit">
             {isEditing ? "Update Services" : "Save Services"}
-          </button>
+          </Button>
         </div>
       </form>
 
       {/* Services List */}
-      <h2 className="mb-4 text-center text-xl font-semibold">
+      <h2 className="mb-4 text-center text-xl font-semibold dark:text-white">
         Existing Services Entries
       </h2>
       <ul className="mx-auto max-w-lg space-y-4">
         {servicesList?.map((services: ServicesEntry) => (
           <li
             key={services.id}
-            className="flex items-center justify-between rounded bg-white p-4 shadow-md"
+            className="flex items-center justify-between rounded bg-white p-4 shadow-md dark:bg-gray-800"
           >
             <div>
-              <p className="text-lg">{services.content}</p>
+              <p className="text-lg dark:text-white">{services.content}</p>
             </div>
             <div className="space-x-2">
-              <button
-                onClick={() => handleEdit(services)}
-                className="rounded bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-700"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(services.id)}
-                className="rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
-              >
-                Delete
-              </button>
-              <button
-                onClick={() => handleSetActive(services.id)}
-                className={`px-4 py-2 font-bold text-white ${
-                  services.isActive
-                    ? "bg-green-500"
-                    : "bg-blue-500 hover:bg-blue-700"
-                }`}
-                disabled={services.isActive}
-              >
-                {services.isActive ? "Active" : "Set Active"}
-              </button>
+              {showDeleteConfirmation === services.id ? (
+                <div className="space-x-2">
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleDelete(services.id)}
+                  >
+                    Confirm Delete
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowDeleteConfirmation(null)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleEdit(services)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => setShowDeleteConfirmation(services.id)}
+                  >
+                    Delete
+                  </Button>
+                  <Button
+                    variant="default"
+                    onClick={() =>
+                      setActiveServices.mutate({ id: services.id })
+                    }
+                    disabled={services.isActive}
+                  >
+                    {services.isActive ? "Active" : "Set Active"}
+                  </Button>
+                </>
+              )}
             </div>
           </li>
         ))}

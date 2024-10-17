@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { api } from "~/trpc/react";
-import { format } from "date-fns"; // For formatting the date
+import { format } from "date-fns";
+import { Button } from "~/components/ui/button"; // Use Button component
 
 const AdminContactPage = () => {
   const {
@@ -10,23 +11,17 @@ const AdminContactPage = () => {
     error,
     refetch,
   } = api.contacts.getContacts.useQuery();
-
   const updateContact = api.contacts.updateContact.useMutation({
     onSuccess: async () => {
-      await refetch(); // Refetch contacts after a successful update
+      await refetch();
     },
   });
 
   const [editingContactId, setEditingContactId] = useState<number | null>(null);
   const [notes, setNotes] = useState<string>("");
 
-  if (isLoading) {
-    return <div>Loading contacts...</div>;
-  }
-
-  if (error) {
-    return <div>Error loading contacts: {error.message}</div>;
-  }
+  if (isLoading) return <div>Loading contacts...</div>;
+  if (error) return <div>Error loading contacts: {error.message}</div>;
 
   const handleContactedChange = async (id: number, contacted: boolean) => {
     try {
@@ -49,25 +44,43 @@ const AdminContactPage = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="mb-6 text-2xl font-semibold">Contact Management</h1>
+      <h1 className="mb-6 text-2xl font-semibold dark:text-white">
+        Contact Management
+      </h1>
 
-      <table className="min-w-full table-auto border-collapse border border-gray-300">
+      <table className="min-w-full table-auto border-collapse border border-gray-300 dark:border-gray-700">
         <thead>
-          <tr>
-            <th className="border px-4 py-2">Contacted</th>
-            <th className="border px-4 py-2">Name</th>
-            <th className="border px-4 py-2">Email</th>
-            <th className="border px-4 py-2">Phone</th>
-            <th className="border px-4 py-2">Message</th>
-            <th className="border px-4 py-2">Notes</th>
-            <th className="border px-4 py-2">Contact Date</th>{" "}
-            {/* Add the contact date column */}
+          <tr className="dark:bg-gray-800">
+            <th className="border px-4 py-2 dark:border-gray-700 dark:text-white">
+              Contacted
+            </th>
+            <th className="border px-4 py-2 dark:border-gray-700 dark:text-white">
+              Name
+            </th>
+            <th className="border px-4 py-2 dark:border-gray-700 dark:text-white">
+              Email
+            </th>
+            <th className="border px-4 py-2 dark:border-gray-700 dark:text-white">
+              Phone
+            </th>
+            <th className="border px-4 py-2 dark:border-gray-700 dark:text-white">
+              Message
+            </th>
+            <th className="border px-4 py-2 dark:border-gray-700 dark:text-white">
+              Notes
+            </th>
+            <th className="border px-4 py-2 dark:border-gray-700 dark:text-white">
+              Contact Date
+            </th>
           </tr>
         </thead>
         <tbody>
           {contacts?.map((contact) => (
-            <tr key={contact.id} className="odd:bg-gray-100 even:bg-gray-50">
-              <td className="border px-4 py-2 text-center">
+            <tr
+              key={contact.id}
+              className="odd:bg-gray-100 even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-900"
+            >
+              <td className="border px-4 py-2 text-center dark:border-gray-700">
                 <input
                   type="checkbox"
                   className="h-6 w-6"
@@ -77,55 +90,61 @@ const AdminContactPage = () => {
                   }
                 />
               </td>
-              <td className="border px-4 py-2">{contact.name}</td>
-              <td className="border px-4 py-2">{contact.email}</td>
-              <td className="border px-4 py-2">{contact.phone ?? "N/A"}</td>
-              <td className="border px-4 py-2">
+              <td className="border px-4 py-2 dark:border-gray-700 dark:text-white">
+                {contact.name}
+              </td>
+              <td className="border px-4 py-2 dark:border-gray-700 dark:text-white">
+                {contact.email}
+              </td>
+              <td className="border px-4 py-2 dark:border-gray-700 dark:text-white">
+                {contact.phone ?? "N/A"}
+              </td>
+              <td className="border px-4 py-2 dark:border-gray-700 dark:text-white">
                 {contact.message ?? "No message"}
               </td>
-              <td className="border px-4 py-2">
+              <td className="border px-4 py-2 dark:border-gray-700 dark:text-white">
                 {editingContactId === contact.id ? (
                   <div>
                     <textarea
-                      className="w-full rounded border p-2"
+                      className="w-full rounded border p-2 dark:bg-gray-700 dark:text-white"
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                     />
                     <div className="mt-2 space-x-2">
-                      <button
-                        className="rounded bg-blue-500 px-4 py-2 text-white"
+                      <Button
+                        variant="default"
                         onClick={() => handleNotesSubmit(contact.id)}
                       >
                         Save
-                      </button>
-                      <button
-                        className="rounded bg-gray-500 px-4 py-2 text-white"
+                      </Button>
+                      <Button
+                        variant="secondary"
                         onClick={() => {
                           setEditingContactId(null);
                           setNotes("");
                         }}
                       >
                         Cancel
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ) : (
                   <>
                     {contact.notes ?? "No notes"}
-                    <button
-                      className="ml-2 rounded bg-yellow-500 px-4 py-2 text-white"
+                    <Button
+                      variant="outline"
+                      className="ml-2"
                       onClick={() => {
                         setEditingContactId(contact.id);
                         setNotes(contact.notes ?? "");
                       }}
                     >
                       Edit Notes
-                    </button>
+                    </Button>
                   </>
                 )}
               </td>
-              <td className="border px-4 py-2">
-                {/* Format the createdAt field */}
+              <td className="border px-4 py-2 dark:border-gray-700 dark:text-white">
                 {format(new Date(contact.createdAt), "yyyy-MM-dd HH:mm:ss")}
               </td>
             </tr>

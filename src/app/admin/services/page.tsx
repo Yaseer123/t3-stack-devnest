@@ -1,5 +1,5 @@
 import React from "react";
-import ServicesManagement from "~/app/_components/admin/ServicesForm";
+import ServicesManagement from "~/components/admin/ServicesForm";
 
 const ServicesPage = () => {
   return (

@@ -1,30 +1,34 @@
-import {
-  SignedIn,
-  SignedOut,
-  RedirectToSignIn,
-  UserButton,
-} from "@clerk/nextjs";
+import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/nextjs";
 import Head from "next/head";
-import NavigationBar from "../_components/admin/NavigationBar";
+import NavigationBar from "~/components/admin/NavigationBar";
+import { AuroraBackground } from "~/components/ui/aurora-background";
+import { ThemeProvider } from "~/components/ThemeProvider"; // Import ThemeProvider
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <>
-      <Head>
-        <meta name="robots" content="noindex, nofollow" />
-      </Head>
+    <ThemeProvider attribute="class" defaultTheme="system">
+      <>
+        <Head>
+          <meta name="robots" content="noindex, nofollow" />
+        </Head>
 
-      <SignedIn>
-        <header>
-          <NavigationBar />
-        </header>
-        <main>{children}</main>
-      </SignedIn>
+        <SignedIn>
+          <AuroraBackground>
+            {/* Header with Navigation */}
+            <header>
+              <NavigationBar />
+            </header>
+            {/* Main content */}
+            <main className="min-h-screen">{children}</main>{" "}
+            {/* Full viewport height */}
+          </AuroraBackground>
+        </SignedIn>
 
-      <SignedOut>
-        <RedirectToSignIn redirectUrl="/admin" />
-      </SignedOut>
-    </>
+        <SignedOut>
+          <RedirectToSignIn redirectUrl="/admin" />
+        </SignedOut>
+      </>
+    </ThemeProvider>
   );
 };
 
