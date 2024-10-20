@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { api } from "~/trpc/react"; // Your tRPC client setup
+import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button"; // Use Button component
 
 // Define the SEOEntry interface
@@ -16,41 +16,50 @@ const SEOComponent = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [currentEditId, setCurrentEditId] = useState<number | null>(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<
     number | null
   >(null); // New state for delete confirmation
 
   const { data: seoList, refetch } = api.seo.getAllSeo.useQuery();
   const upsertSeo = api.seo.upsertSeo.useMutation({
-    onSuccess: () => refetch(),
+    onSuccess: () => void refetch(), // Marked with void
   });
   const deleteSeo = api.seo.deleteSeo.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch(); // Marked with void
       setShowDeleteConfirmation(null); // Reset delete confirmation after deletion
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Handle form submission for adding/updating SEO entries
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    upsertSeo.mutate({ pagePath, title, description });
-    setPagePath("");
-    setTitle("");
-    setDescription("");
-    setIsEditing(false);
+    try {
+      await upsertSeo.mutateAsync({ pagePath, title, description });
+      setPagePath("");
+      setTitle("");
+      setDescription("");
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error saving SEO entry:", error);
+    }
   };
 
+  // Handle editing an SEO entry
   const handleEdit = (seo: SEOEntry) => {
     setPagePath(seo.pagePath);
     setTitle(seo.title);
     setDescription(seo.description);
     setIsEditing(true);
-    setCurrentEditId(seo.id);
   };
 
-  const handleDelete = (pagePath: string) => {
-    deleteSeo.mutate({ pagePath });
+  // Handle deleting an SEO entry
+  const handleDelete = async (pagePath: string) => {
+    try {
+      await deleteSeo.mutateAsync({ pagePath });
+    } catch (error) {
+      console.error("Error deleting SEO entry:", error);
+    }
   };
 
   return (
@@ -59,6 +68,7 @@ const SEOComponent = () => {
         Manage SEO for Different Pages
       </h1>
 
+      {/* Form for adding/editing SEO */}
       <form
         onSubmit={handleSubmit}
         className="mx-auto mb-6 max-w-lg rounded bg-white px-8 pb-8 pt-6 shadow-md dark:bg-gray-800"
@@ -110,6 +120,7 @@ const SEOComponent = () => {
         </div>
       </form>
 
+      {/* Display existing SEO entries */}
       <h2 className="mb-4 text-center text-xl font-semibold dark:text-white">
         Existing SEO Entries
       </h2>
@@ -132,7 +143,9 @@ const SEOComponent = () => {
                 <div className="space-x-2">
                   <Button
                     variant="destructive"
-                    onClick={() => handleDelete(seo.pagePath)}
+                    onClick={async () => {
+                      await handleDelete(seo.pagePath); // Await handleDelete
+                    }}
                   >
                     Confirm Delete
                   </Button>

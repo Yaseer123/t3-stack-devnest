@@ -23,31 +23,38 @@ const AboutUsManagement = () => {
 
   // Mutation for upserting About Us entries
   const upsertAboutUs = api.aboutUs.upsertAboutUs.useMutation({
-    onSuccess: () => void refetch(), // Explicitly ignore returned promise
+    onSuccess: async () => {
+      await refetch(); // Await refetch to ensure the data is updated
+    },
   });
 
   // Mutation for deleting About Us entry
   const deleteAboutUs = api.aboutUs.deleteAboutUs.useMutation({
-    onSuccess: () => {
-      refetch(); // Explicitly ignore returned promise
+    onSuccess: async () => {
+      await refetch(); // Await refetch after deletion
       setShowDeleteConfirmation(null); // Reset confirmation state after deletion
     },
   });
 
   // Mutation for setting an About Us entry as active
   const setActiveAboutUs = api.aboutUs.setActiveAboutUs.useMutation({
-    onSuccess: () => void refetch(), // Explicitly ignore returned promise
+    onSuccess: async () => {
+      await refetch(); // Await refetch
+    },
   });
 
   // Define the handleSetActive function to set an entry as active
-  const handleSetActive = (id: number) => {
-    setActiveAboutUs.mutate({ id }); // Call the mutation to set the entry as active
+  const handleSetActive = async (id: number) => {
+    await setActiveAboutUs.mutateAsync({ id }); // Await the mutation
   };
 
   // Handle form submission to add/update About Us entry
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    upsertAboutUs.mutate({ content, id: currentEditId ?? undefined });
+    await upsertAboutUs.mutateAsync({
+      content,
+      id: currentEditId ?? undefined,
+    });
     setContent("");
     setIsEditing(false); // Reset editing state
   };
@@ -60,8 +67,8 @@ const AboutUsManagement = () => {
   };
 
   // Handle confirming deletion
-  const handleDelete = (id: number) => {
-    deleteAboutUs.mutate({ id });
+  const handleDelete = async (id: number) => {
+    await deleteAboutUs.mutateAsync({ id }); // Await delete mutation
   };
 
   return (

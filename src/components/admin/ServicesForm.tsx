@@ -24,26 +24,33 @@ const ServicesManagement = () => {
 
   // Mutation for upserting Services entries
   const upsertServices = api.services.upsertServices.useMutation({
-    onSuccess: () => void refetch(), // Explicitly ignore returned promise
+    onSuccess: async () => {
+      await refetch(); // Await refetch to ensure the data is updated
+    },
   });
 
   // Mutation for deleting Services entry
   const deleteServices = api.services.deleteServices.useMutation({
-    onSuccess: () => {
-      refetch();
-      setShowDeleteConfirmation(null); // Reset delete confirmation after deletion
+    onSuccess: async () => {
+      await refetch(); // Await refetch after deletion
+      setShowDeleteConfirmation(null); // Reset confirmation state after deletion
     },
   });
 
   // Mutation for setting a Services entry as active
   const setActiveServices = api.services.setActiveServices.useMutation({
-    onSuccess: () => void refetch(),
+    onSuccess: async () => {
+      await refetch(); // Await refetch
+    },
   });
 
   // Handle form submission to add/update Services entry
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    upsertServices.mutate({ content, id: currentEditId ?? undefined });
+    await upsertServices.mutateAsync({
+      content,
+      id: currentEditId ?? undefined,
+    });
     setContent("");
     setIsEditing(false); // Reset editing state
   };
@@ -52,12 +59,17 @@ const ServicesManagement = () => {
   const handleEdit = (services: ServicesEntry) => {
     setContent(services.content);
     setIsEditing(true);
-    setCurrentEditId(services.id);
+    setCurrentEditId(services.id); // Set current editing Services ID
+  };
+
+  // Handle setting an entry as active
+  const handleSetActive = async (id: number) => {
+    await setActiveServices.mutateAsync({ id }); // Call the mutation to set the entry as active
   };
 
   // Handle confirming deletion
-  const handleDelete = (id: number) => {
-    deleteServices.mutate({ id });
+  const handleDelete = async (id: number) => {
+    await deleteServices.mutateAsync({ id }); // Await delete mutation
   };
 
   return (
@@ -136,9 +148,7 @@ const ServicesManagement = () => {
                   </Button>
                   <Button
                     variant="default"
-                    onClick={() =>
-                      setActiveServices.mutate({ id: services.id })
-                    }
+                    onClick={() => handleSetActive(services.id)}
                     disabled={services.isActive}
                   >
                     {services.isActive ? "Active" : "Set Active"}
