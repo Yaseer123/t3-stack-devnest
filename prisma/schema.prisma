@@ -61,3 +61,14 @@ model Project {
   imagePaths  String[] // An array of image paths
   updatedAt   DateTime @updatedAt
 }
+
+model Review {
+  id          Int      @id @default(autoincrement())
+  name        String   // Name of the reviewer
+  companyName String?  // Optional: Company Name
+  reviewText  String   // The actual review content
+  rating      Int      // Rating (1-5)
+  imagePath   String?  // Optional: Path to the reviewer's image
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
