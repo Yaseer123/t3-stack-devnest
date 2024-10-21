@@ -58,8 +58,6 @@ model Project {
   id          Int      @id @default(autoincrement())
   title       String
   description String
-  createdAt   DateTime @default(now())
+  imagePaths  String[] // An array of image paths
   updatedAt   DateTime @updatedAt
-
-  @@index([updatedAt])
 }

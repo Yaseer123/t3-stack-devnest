@@ -57,7 +57,7 @@ CREATE TABLE "Project" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "imagePath" TEXT NOT NULL,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Project_pkey" PRIMARY KEY ("id")
@@ -71,6 +71,3 @@ CREATE UNIQUE INDEX "Contact_email_key" ON "Contact"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "SeoSettings_pagePath_key" ON "SeoSettings"("pagePath");
-
--- CreateIndex
-CREATE INDEX "Project_updatedAt_idx" ON "Project"("updatedAt");
