@@ -85,6 +85,18 @@ const NavigationBar = () => {
           </li>
           <li>
             <Link
+              href="/admin/all-services"
+              className={`${
+                isActive("/admin/all-services")
+                  ? "text-yellow-400"
+                  : "hover:text-gray-300"
+              }`}
+            >
+              All Services
+            </Link>
+          </li>
+          <li>
+            <Link
               href="/admin/projects"
               className={`${
                 isActive("/admin/projects")
@@ -187,6 +199,16 @@ const NavigationBar = () => {
             }`}
           >
             Services
+          </Link>
+          <Link
+            href="/admin/all-services"
+            className={`py-2 text-white ${
+              isActive("/admin/all-services")
+                ? "text-yellow-400"
+                : "hover:text-gray-300"
+            }`}
+          >
+            All Services
           </Link>
           <Link
             href="/admin/projects"

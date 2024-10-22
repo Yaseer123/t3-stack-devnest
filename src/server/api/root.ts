@@ -6,6 +6,7 @@ import { servicesRouter } from "./routers/services";
 import { contactRouter } from "./routers/contact";
 import { projectsRouter } from "./routers/projects";
 import { reviewsRouter } from "./routers/reviews";
+import { allServicesRouter } from "./routers/allServices";
 
 /**
  * This is the primary router for your server.
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   post: postRouter,
   aboutUs: aboutUsRouter,
   services: servicesRouter,
+  allServices: allServicesRouter,
   seo: seoRouter,
   contacts: contactRouter,
   projects: projectsRouter,
