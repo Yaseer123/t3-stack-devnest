@@ -1,8 +1,161 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@layer base {
-  :root {
-    --radius: 0.5rem
+
+/* Navbar style*/
+.hover-underline-effect {
+  position: relative;
+  display: inline-block;
+}
+
+.hover-underline-effect::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background-color: white;
+  transition: width 0.3s ease;
+}
+
+.hover-underline-effect:hover::after {
+  width: 100%;
+}
+
+/* Text glow effect */
+.glow-effect {
+  transition: color 0.3s ease;
+  color: white;
+  text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.8);
+}
+
+.hover-text-white:hover {
+  color: white;
+}
+
+/* Icon turns white and glows on hover */
+.hover-icon-glow:hover {
+  filter: brightness(0) invert(1);
+  transition: filter 0.3s ease, transform 0.3s ease;
+  transform: scale(1.1);
+}
+@keyframes jump {
+  0%, 100% {
+    transform: translateY(0);
   }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.imagination-text {
+  font-size: 5rem; /* Adjust size as needed */
+  font-weight: bold;
+  background: linear-gradient(90deg, #c7c7c7, #ffffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.scroll-text {
+  opacity: 0;
+  transform: translateY(20px); /* Words start lower and animate upward */
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+.glow-up {
+  opacity: 1;
+  transform: translateY(0);
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+/* Button base styles */
+.btn {
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Variants */
+.btn.primary {
+  background-color: #1d4ed8; /* Blue */
+  color: white;
+}
+
+.btn.primary:hover {
+  background-color: #1e40af; /* Darker Blue */
+}
+
+.btn.secondary {
+  background-color: #6b7280; /* Gray */
+  color: white;
+}
+
+.btn.secondary:hover {
+  background-color: #4b5563; /* Darker Gray */
+}
+
+/* Sizes */
+.btn.small {
+  font-size: 12px;
+  padding: 5px 10px;
+}
+
+.btn.medium {
+  font-size: 16px;
+  padding: 10px 20px;
+}
+
+.btn.large {
+  font-size: 20px;
+  padding: 15px 30px;
+}
+
+/* Disabled state */
+.btn:disabled {
+  background-color: #d1d5db; /* Light Gray */
+  cursor: not-allowed;
+}
+.animate-jump {
+  animation: jump 1s infinite;
+}
+
+.animate-none {
+  animation: none;
+}
+
+/* Our Services */
+.services-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.service-block {
+  text-align: center;
+}
+
+.service-title {
+  margin-bottom: 1rem;
+}
+
+.service-description {
+  margin-bottom: 2rem;
+}
+
+.service-model {
+  background-color: #1a1a1a;
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.service-model img {
+  width: 75%;
+  height: 75%;
+  object-fit: contain;
 }
