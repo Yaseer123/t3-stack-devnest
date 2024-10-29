@@ -34,7 +34,7 @@ const HeroSection = () => {
 
       {/* Connect Button (Bottom Right) */}
       <div className="absolute bottom-20 right-8 z-10">
-        <Button label="Let&apos;s Connect" />
+        <Button label="Let&apos;s Connect" className="animate-bounce" />
       </div>
     </div>
   );

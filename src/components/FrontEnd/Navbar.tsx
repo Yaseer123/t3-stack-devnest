@@ -2,7 +2,7 @@ import * as React from "react";
 
 function Navbar() {
   return (
-    <div className="flex justify-between items-center py-4 px-6 bg-black text-zinc-600">
+    <div className="flex justify-between items-center py-4 px-6 text-zinc-600">
       {/* Left side: Devnest logo and text */}
       <div className="flex items-center gap-3">
         <img

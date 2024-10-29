@@ -44,7 +44,7 @@ const ThreeDModelSection: React.FC = () => {
   );
 };
 
-const MainPage: React.FC = () => {
+const OurServices: React.FC = () => {
   return (
     <div className="bg-black text-white">
       {/* Services Section */}
@@ -59,4 +59,4 @@ const MainPage: React.FC = () => {
   );
 };
 
-export default MainPage;
+export default OurServices;
