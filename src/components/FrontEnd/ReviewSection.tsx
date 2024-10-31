@@ -31,7 +31,7 @@ const ReviewSection: React.FC = () => {
               image="/path-to-image/reviewer.jpg"
               review="AIXOR truly understands the power of storytelling and strategic marketing"
             />
-              <ReviewCard
+            <ReviewCard
               name="Michael Richards 5"
               companyName="GreenWave Energy"
               image="/path-to-image/reviewer.jpg"
@@ -45,32 +45,30 @@ const ReviewSection: React.FC = () => {
               image="/path-to-image/reviewer.jpg"
               review="AIXOR truly understands the power of storytelling and strategic marketing"
             />
-              <ReviewCard
+            <ReviewCard
               name="Michael Richards 7"
               companyName="GreenWave Energy"
               image="/path-to-image/reviewer.jpg"
               review="AIXOR truly understands the power of storytelling and strategic marketing"
             />
-              <ReviewCard
+            <ReviewCard
               name="Michael Richards 8"
               companyName="GreenWave Energy"
               image="/path-to-image/reviewer.jpg"
               review="AIXOR truly understands the power of storytelling and strategic marketing"
             />
-              <ReviewCard
+            <ReviewCard
               name="Michael Richards 9"
               companyName="GreenWave Energy"
               image="/path-to-image/reviewer.jpg"
               review="AIXOR truly understands the power of storytelling and strategic marketing"
             />
-
             <ReviewCard
               name="Michael Richards 10"
               companyName="GreenWave Energy"
               image="/path-to-image/reviewer.jpg"
               review="AIXOR truly understands the power of storytelling and strategic marketing"
             />
-
           </div>
         </div>
       </div>
@@ -106,17 +104,17 @@ const ReviewSection: React.FC = () => {
           overflow-x: hidden;
         }
 
-        .scroll-element {
-          width: 100%;
-          height: 100%;
-          position: absolute;
-          left: 0%;
-          top: 0%;
-          display: flex;
-          align-items: center;
-          justify-content: space-between; /* Change from space-around to space-between */
-          gap: 5rem; /* Adjust gap to your desired spacing */
-        }
+.scroll-element {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0%;
+  top: 0%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around; /* Changed to space-around for better distribution */
+  gap: 1rem; /* Reduced gap to a smaller value */
+}
 
 
         .scroll-element img {

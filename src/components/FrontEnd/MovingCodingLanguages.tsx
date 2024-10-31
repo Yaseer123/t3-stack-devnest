@@ -56,17 +56,18 @@ const AutoScrollLogos: React.FC = () => {
           overflow-x: hidden;
         }
 
-        .scroll-element {
-          width: 100%;
-          height: 100%;
-          position: absolute;
-          left: 0%;
-          top: 0%;
-          display: flex;
-          align-items: center;
-          justify-content: space-around;
-          gap: 5rem;
-        }
+.scroll-element {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0%;
+  top: 0%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around; /* Changed to space-around for better distribution */
+  gap: 1rem; /* Reduced gap to a smaller value */
+}
+
 
         .scroll-element img {
           width: 12rem;
