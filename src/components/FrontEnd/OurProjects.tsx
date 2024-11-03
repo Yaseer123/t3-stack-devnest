@@ -1,33 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-
-interface Project {
-  title: string;
-  description: string;
-  image: string;
-}
-
-const projects: Project[] = [
-  {
-    title: 'Artificial Intelligence',
-    description: 'You can do more with AI.',
-    image: 'https://cdn.builder.io/api/v1/image/assets%2F9ec9eabe66804d1aaf868c725baa037c%2F0226d1c0ff5a4a43b4ac0f11145c56b9',
-  },
-  {
-    title: 'Productivity',
-    description: 'Enhance your productivity.',
-    image: 'https://cdn.builder.io/api/v1/image/assets%2F9ec9eabe66804d1aaf868c725baa037c%2F15f8e62b2c8248b79e04d8780157f317',
-  },
-  {
-    title: 'Product',
-    description: 'Launching Apple Vision.',
-    image: 'https://cdn.builder.io/api/v1/image/assets%2F9ec9eabe66804d1aaf868c725baa037c%2F0226d1c0ff5a4a43b4ac0f11145c56b9',
-  },
-];
+import { api } from '~/trpc/react'; // Assuming your trpc setup path
+import { Project } from '../types'; // Define a type for projects if not already defined
 
 const SliderSection: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const sliderRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Fetch projects data
+  const { data: projects = [], isLoading, error } = api.projects.getAllProjects.useQuery();
 
   const startAutoSlide = () => {
     intervalRef.current = setInterval(nextSlide, 5000);
@@ -55,9 +36,12 @@ const SliderSection: React.FC = () => {
   };
 
   useEffect(() => {
-    startAutoSlide();
+    if (projects.length > 0) startAutoSlide();
     return () => stopAutoSlide();
-  }, []);
+  }, [projects]);
+
+  if (isLoading) return <div>Loading projects...</div>;
+  if (error) return <div>Error loading projects: {error.message}</div>;
 
   return (
     <div className="slider-container" ref={sliderRef}>
@@ -70,7 +54,7 @@ const SliderSection: React.FC = () => {
             className="slide"
             key={index}
             style={{
-              backgroundImage: `url(${project.image})`,
+              backgroundImage: `url(${project.imagePaths[0]})`, // Using the first image path
             }}
           >
             <div className="text-container">
@@ -94,7 +78,7 @@ const SliderSection: React.FC = () => {
           position: relative;
           width: 100%;
           overflow: hidden;
-          height: 70vh; /* Set a specific height */
+          height: 70vh;
         }
 
         .slider {
@@ -116,35 +100,35 @@ const SliderSection: React.FC = () => {
         }
 
         .text-container {
-          text-align: center; /* Center the text */
-          padding: 20px; /* Add some padding for better spacing */
-          background-color: rgba(0, 0, 0, 0.5); /* Optional: background for text readability */
+          text-align: center;
+          padding: 20px;
+          background-color: rgba(0, 0, 0, 0.5);
         }
 
         .navigation {
           position: absolute;
           top: 50%;
-          transform: translateY(-50%); /* Center vertically */
+          transform: translateY(-50%);
           width: 100%;
           display: flex;
-          justify-content: space-between; /* Space the buttons on left and right */
-          padding: 0 20px; /* Add padding for better spacing */
+          justify-content: space-between;
+          padding: 0 20px;
         }
 
         .prev,
         .next {
-          background-color: transparent; /* Initially transparent */
+          background-color: transparent;
           color: white;
-          border: 2px solid transparent; /* Border for hover effect */
+          border: 2px solid transparent;
           padding: 10px;
           cursor: pointer;
           border-radius: 5px;
-          transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth transition */
+          transition: background-color 0.3s ease, border-color 0.3s ease;
         }
 
         .prev:hover,
         .next:hover {
-          background-color: rgba(0, 0, 0, 0.5); /* Background on hover */
+          background-color: rgba(0, 0, 0, 0.5);
         }
       `}</style>
     </div>

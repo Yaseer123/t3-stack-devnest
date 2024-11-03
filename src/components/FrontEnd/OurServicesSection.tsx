@@ -1,13 +1,42 @@
-import React from 'react';
+// components/OurServicesSection.tsx
+import { api } from "~/trpc/react";
 import ServiceItem from './OurServicesItems';
 
+interface ActiveService {
+  content: string;
+  updatedAt: Date;
+  id: number;
+  isActive: boolean;
+}
+
+const ActiveServiceComponent = ({ activeService }: { activeService: ActiveService | null }) => {
+  if (!activeService) {
+    return <div>No active service found</div>;
+  }
+
+  return (
+    <div>
+      <p>{activeService.content}</p>
+    </div>
+  );
+};
+
 const OurServicesSection: React.FC = () => {
+  // Use `api` instead of `trpc` for tRPC query
+  const { data: activeService, isLoading, error } = api.services.getActiveService.useQuery();
+
   const services = [
     { name: "Branding Identity", features: ["Legacy Modernisation", "Solution Design", "Technology Enabling", "Mobile-First Systems"] },
     { name: "Interactive Design", features: ["Legacy Modernisation", "Solution Design", "Technology Enabling", "Mobile-First Systems"] },
     { name: "SEO/Marketing", features: ["Legacy Modernisation", "Solution Design", "Technology Enabling", "Mobile-First Systems"] },
     { name: "Development", features: ["Legacy Modernisation", "Solution Design", "Technology Enabling", "Mobile-First Systems"] }
   ];
+
+  if (isLoading) return <div>Loading active service...</div>;
+
+  if (error instanceof Error) {
+    return <div>Error loading active service: {error.message}</div>;
+  }
 
   return (
     <section className="flex flex-col items-center py-12 bg-black text-white min-w-full">
@@ -18,38 +47,29 @@ const OurServicesSection: React.FC = () => {
           <h2 className="font-bold">Our Services</h2>
         </div>
         <div className="mt-4 text-3xl font-bold">
-          <p>At DEVNEST, we offer tailored creative solutions to</p>
-          <p>elevate your brand and drive success, exceeding</p>
-          <p>your expectations with our expert team&apos;s dedicated</p>
-          <p>services.</p>
+          <ActiveServiceComponent activeService={activeService ?? null} />
         </div>
       </div>
 
+      {/* Full-width line */}
+      <div className="w-full border-t border-stone-500 my-4"></div>
+
       {/* Service and Features Section */}
-      <div className="flex flex-wrap gap-5 mt-10 max-w-full w-full justify-center">
+      <div className="flex flex-wrap gap-5 mt-1 max-w-full w-full justify-center">
         <div className="flex flex-col w-full md:w-2/3 px-4">
-          <div className="flex justify-between items-center border-t border-stone-500 py-4 text-xl font-semibold">
+          {/* Column Headers */}
+          <div className="flex justify-between items-center py-2 mt-1 text-xl font-semibold">
             <span className="px-4">Services</span>
-            <span className="px-4">Features</span> {/* Adjusted position */}
+            <span className="px-4">Features</span>
             <span className="px-4">3D Illustrations</span>
           </div>
 
           {/* Service List */}
-          <div className="flex flex-col mt-8 space-y-8">
+          <div className="flex flex-col mt-8 space-y-8 font-bold">
             {services.map((service, index) => (
-              <ServiceItem key={index} {...service} />
+              <ServiceItem key={index} {...service} persistentBackground={index === 0} />
             ))}
           </div>
-        </div>
-
-        {/* Illustration Image */}
-        <div className="w-full md:w-1/3 flex justify-center px-4">
-          <img
-            loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/ad7981998234ecbf51c68e8d440099723fe5cd6a3338fe4c7e8fff3df7a931e0?placeholderIfAbsent=true&apiKey=9ec9eabe66804d1aaf868c725baa037c"
-            alt="Service illustration"
-            className="object-contain w-full aspect-[1.18]"
-          />
         </div>
       </div>
     </section>

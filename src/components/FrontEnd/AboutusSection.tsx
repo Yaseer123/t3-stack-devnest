@@ -1,26 +1,34 @@
 import { useEffect, useRef, useState } from "react";
 import Card from "./card";
+import { api } from "~/trpc/react"; // Adjust the path to your tRPC client setup
 
 const Aboutus: React.FC = () => {
   const [visibleWords, setVisibleWords] = useState(0);
   const textRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const wordsPerBatch = 1;
+  const delayBetweenWords = 200;
 
-  const wordsPerBatch = 1; // Reveal one word at a time
-  const delayBetweenWords = 200; // Delay between revealing words
+  // Fetch the active "About Us" content using tRPC
+  const { data: activeAboutUs, isLoading, error } = api.aboutUs.getActiveAboutUs.useQuery();
 
   useEffect(() => {
+    if (!activeAboutUs || isLoading) return;
+
     let timeoutId: NodeJS.Timeout | null = null;
+
+    const revealWords = () => {
+      setVisibleWords((prev) => {
+        const nextCount = Math.min(prev + wordsPerBatch, textRefs.current.length);
+        if (nextCount === textRefs.current.length) observer.disconnect();
+        return nextCount;
+      });
+      timeoutId = setTimeout(revealWords, delayBetweenWords);
+    };
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const revealWords = () => {
-              setVisibleWords((prev) => Math.min(prev + wordsPerBatch, textRefs.current.length));
-              if (visibleWords < textRefs.current.length) {
-                timeoutId = setTimeout(revealWords, delayBetweenWords); // Reveal words with delay
-              }
-            };
             revealWords();
           }
         });
@@ -32,17 +40,15 @@ const Aboutus: React.FC = () => {
     if (targetElement) observer.observe(targetElement);
 
     return () => {
-      if (targetElement) observer.unobserve(targetElement);
+      observer.disconnect();
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [visibleWords]);
+  }, [activeAboutUs, isLoading]);
 
-  const textLines = [
-    "Founded on the principles of creativity,",
-    "collaboration, and excellence, AIXOR is a diverse",
-    "team of industry experts dedicated to delivering",
-    "outstanding results..."
-  ];
+  // Split the active "About Us" content into lines for display
+  const textLines = activeAboutUs
+    ? activeAboutUs.content.split(". ").map((line) => line.trim()) // Adjust splitting as needed
+    : [];
 
   return (
     <>
@@ -55,24 +61,30 @@ const Aboutus: React.FC = () => {
 
         {/* Glowing Words with Left Alignment */}
         <div id="about-us-text" className="flex flex-col items-start mt-16 max-w-full text-6xl font-bold w-[915px] max-md:mt-10">
-          {textLines.map((line, lineIndex) => (
-            <div key={lineIndex} className="my-4">
-              {line.split(" ").map((word, wordIndex) => {
-                const index = lineIndex * line.split(" ").length + wordIndex;
-                return (
-                  <span
-                    key={index}
-                    className={`scroll-text ${index < visibleWords ? "glow-up" : ""}`}
-                    ref={(el) => {
-                      textRefs.current[index] = el;
-                    }}
-                  >
-                    {word}&nbsp;
-                  </span>
-                );
-              })}
-            </div>
-          ))}
+          {isLoading ? (
+            <div>Loading...</div>
+          ) : error ? (
+            <div>Error loading content</div>
+          ) : (
+            textLines.map((line, lineIndex) => (
+              <div key={lineIndex} className="my-4">
+                {line.split(" ").map((word, wordIndex) => {
+                  const index = lineIndex * line.split(" ").length + wordIndex;
+                  return (
+                    <span
+                      key={index}
+                      className={`scroll-text ${index < visibleWords ? "glow-up" : ""}`}
+                      ref={(el) => {
+                        textRefs.current[index] = el;
+                      }}
+                    >
+                      {word}&nbsp;
+                    </span>
+                  );
+                })}
+              </div>
+            ))
+          )}
         </div>
 
         {/* Cards Section */}

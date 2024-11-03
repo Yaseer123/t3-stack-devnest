@@ -60,4 +60,9 @@ export const servicesRouter = createTRPCRouter({
         data: { isActive: true },
       });
     }),
+    getActiveService: publicProcedure.query(async ({ ctx }) => {
+      return await ctx.db.services.findFirst({
+        where: { isActive: true },
+      });
+    }),
 });

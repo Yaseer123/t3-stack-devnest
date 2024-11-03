@@ -60,4 +60,9 @@ export const aboutUsRouter = createTRPCRouter({
         data: { isActive: true },
       });
     }),
+    getActiveAboutUs: publicProcedure.query(async ({ ctx }) => {
+      return await ctx.db.aboutUs.findFirst({
+        where: { isActive: true },
+      });
+    }),
 });
