@@ -2,12 +2,18 @@
 
 import React from "react";
 import Button from "./button";
+import { RotateSphere } from "./ThreeDModel";
 
 const HeroSection = () => {
   return (
     <div className="relative min-h-screen flex flex-col justify-between px-8 py-12">
+      {/* 3D Model Background */}
+      <div className="absolute inset-0 z-0">
+        <RotateSphere />
+      </div>
+
       {/* Left Side Text */}
-      <div className="max-w-lg space-y-6 z-10">
+      <div className="relative max-w-lg space-y-6 z-10">
         <p className="text-xl font-light italic leading-relaxed text-[#5B5B5B]">
           “ At AIXOR, we believe that creativity is the catalyst for innovation.
           As a full-service creative agency, we specialise in transforming bold

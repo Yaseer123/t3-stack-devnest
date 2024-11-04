@@ -10,7 +10,7 @@ export const contactRouter = createTRPCRouter({
         email: z.string().email("Invalid email address"),
         phone: z.string().optional(),
         message: z.string().min(1, "Message is required"),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       const contact = await ctx.db.contact.create({
@@ -54,7 +54,7 @@ export const contactRouter = createTRPCRouter({
         id: z.number(),
         contacted: z.boolean(),
         notes: z.string().optional(),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       const updatedContact = await ctx.db.contact.update({
