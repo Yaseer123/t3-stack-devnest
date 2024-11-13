@@ -2,7 +2,7 @@
 
 import React from "react";
 import Aboutus from "@components/FrontEnd/AboutusSection";
-import ContactSection from "@components/FrontEnd/ContactSection";
+// import ContactSection from "@components/FrontEnd/ContactSection";
 import FooterSection from "@components/FrontEnd/FooterSection";
 import HeroSection from "@components/FrontEnd/HeroSection";
 import AutoScrollLogos from "@components/FrontEnd/MovingCodingLanguages";
@@ -12,17 +12,13 @@ import SliderSection from "~/components/FrontEnd/OurProjects";
 import OurServicesSection from "~/components/FrontEnd/OurServicesSection";
 import { AbstractShape, AbstractSphere, Diamond } from "~/components/FrontEnd/ThreeDModel";
 import { RobocraftCube } from '../components/FrontEnd/ThreeDModel';
+import ContactPage from "~/components/FrontEnd/ContactSection";
 
 const Home = () => {
 
 
   return (
     <div className="bg-black text-white relative overflow-hidden min-h-screen">
-      {/* <MagicCube/> */}
-      <Diamond/>
-      <RobocraftCube/>
-      <AbstractShape/>
-      <AbstractSphere/>
       <Navbar />
       <HeroSection />
       <AutoScrollLogos />
@@ -30,7 +26,7 @@ const Home = () => {
       <Aboutus />
       <SliderSection/>
       <ReviewSection />
-      <ContactSection />
+      <ContactPage />
       <FooterSection />
     </div>
   );

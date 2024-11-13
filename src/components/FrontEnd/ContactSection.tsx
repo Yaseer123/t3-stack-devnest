@@ -1,70 +1,111 @@
-import React from 'react';
-import Button from './button';
+// ContactPage.tsx
+"use client";
+import React, { useState } from "react";
+import { ArtSphere } from "./ThreeDModel";
 
-const ContactSection: React.FC = () => {
+const ContactPage = () => {
+  // Define state for form fields
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+
+  const [submitted, setSubmitted] = useState(false);
+
+  // Handle input changes
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  // Handle form submission
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitted(true);
+    console.log("Form Submitted: ", formData);
+  };
+
   return (
-    <section className="flex flex-col items-start mt-16 text-cyan-100 max-md:mt-10  px-8 py-12">
-      <h2 className="text-7xl font-semibold max-md:max-w-full max-md:text-5xl imagination-text">Let&apos;s Connect</h2>
-      <div className="flex flex-wrap gap-6 mt-16 max-md:mt-10 text-2xl">
-        <div className="text-6xl text-cyan-300 max-md:text-4xl">*</div>
-        <p className="flex-auto self-start mt-3 text-3xl max-md:max-w-full">
-          Whether you have a question, or want to discuss a potential project, <br />
-          our team at AIXOR is here to help. Please fill out the form below!!!
+    <div className="flex flex-col md:flex-row items-center justify-between min-h-screen px-6 bg-gradient-to-b from-black to-neutral-900 text-white">
+      {/* Contact Form Section */}
+      <div className="w-full md:w-1/2 p-6">
+        <h1 className="text-5xl font-bold mb-4">
+          Let<span className="text-white">’s</span>{" "}
+          <span className="italic text-gray-400">Connect</span>
+        </h1>
+        <p className="mt-2 text-gray-400 text-sm mb-8">
+          <span className="text-red-500">*</span> Whether you have a
+          question or want to discuss a potential project, our team at
+          DEVNEST is here to help. Please fill out the form below!!!
         </p>
-      </div>
-      
-      {/* Larger form section */}
-      <form className="w-full mt-24 mid-md:mt-10">
-        {/* Name Field - same width as email + phone */}
-        <div className="w-full max-w-[1000px]">
+
+        <form onSubmit={handleSubmit} className="space-y-6">
           <input
             type="text"
             name="name"
             placeholder="Name"
-            aria-label="Name"
-            className="w-full px-8 py-5 text-2xl whitespace-nowrap rounded-xl border border-solid border-stone-500 text-white text-opacity-7100"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            className="w-full bg-neutral-900 p-3 rounded-md outline-none placeholder-gray-500 border border-gray-700 focus:ring-2 focus:ring-gray-600"
           />
-        </div>
 
-        {/* Email and Phone Fields */}
-        <div className="mt-12 w-full max-w-[1000px]">
-          <div className="flex gap-8 max-md:flex-col">
-            <div className="flex flex-col w-6/12 max-md:ml-0 max-w-[450px]">
-              <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="E-Mail"
-                aria-label="E-Mail"
-                className="grow gap-2.5 self-stretch px-8 py-5 text-2xl whitespace-nowrap rounded-xl border border-solid border-stone-500 min-h-[52px] text-white text-opacity-100 max-md:mt-8"
-              />
-            </div>
-            <div className="flex flex-col ml-5 w-6/12 max-md:ml-0 max-w-[500px]">
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                placeholder="Phone"
-                aria-label="Phone"
-                className="grow gap-2.5 self-stretch px-8 py-5 text-2xl whitespace-nowrap rounded-xl border border-solid border-stone-500 min-h-[52px] text-white text-opacity-100 max-md:mt-8"
-              />
-            </div>
+          <div className="flex gap-4">
+            <input
+              type="email"
+              name="email"
+              placeholder="E-mail"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="w-1/2 bg-neutral-900 p-3 rounded-md outline-none placeholder-gray-500 border border-gray-700 focus:ring-2 focus:ring-gray-600"
+            />
+            <input
+              type="tel"
+              name="phone"
+              placeholder="Phone"
+              value={formData.phone}
+              onChange={handleChange}
+              className="w-1/2 bg-neutral-900 p-3 rounded-md outline-none placeholder-gray-500 border border-gray-700 focus:ring-2 focus:ring-gray-600"
+            />
           </div>
-        </div>
 
           <textarea
             name="message"
             placeholder="Message"
-            aria-label="Message"
-            className="w-full px-8 pt-8 pb-32 text-2xl whitespace-nowrap rounded-xl border border-solid border-stone-500 text-white text-opacity-100"
-          ></textarea>
-        </div>
-        
-        <div className="mt-16">
-          <Button label="Send Message"/>
-        </div>
-      </form>
-    </section>
+            value={formData.message}
+            onChange={handleChange}
+            required
+            className="w-full bg-neutral-900 p-3 rounded-md outline-none placeholder-gray-500 border border-gray-700 focus:ring-2 focus:ring-gray-600 h-32"
+          />
+
+          <button
+            type="submit"
+            className="flex items-center justify-center px-6 py-3 mt-6 text-white bg-neutral-900 rounded-full border border-white hover:bg-gray-700 transition duration-200"
+          >
+            Send Message
+            <span className="ml-2 transform group-hover:translate-x-1 transition duration-300">
+              ➔
+            </span>
+          </button>
+        </form>
+
+        {submitted && (
+          <div className="mt-4 p-3 bg-green-700 text-white rounded-md">
+            Thank you for your message. It has been sent.
+          </div>
+        )}
+      </div>
+
+      {/* 3D Sphere Section */}
+      <div className="w-full h-[70vh] md:w-1/2 p-6 mr-100">
+        <ArtSphere />
+      </div>
+    </div>
   );
 };
 

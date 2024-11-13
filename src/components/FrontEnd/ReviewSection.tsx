@@ -1,123 +1,68 @@
-import React from 'react';
-import { api } from '~/trpc/react'; // Adjust this path to match your project setup
+import React, { useEffect, useState } from 'react';
 import ReviewCard from './ReviewCard';
+import { api } from '~/trpc/react';
+
+interface Review {
+  id: number;
+  name: string;
+  companyName: string | null;
+  imagePath: string | null;
+  reviewText: string;
+}
 
 const ReviewSection: React.FC = () => {
-  // Fetch all reviews using tRPC
-  const { data: reviews, isLoading, error } = api.reviews.getAllReviews.useQuery();
+  const [reviews, setReviews] = useState<Review[]>([]);
 
-  if (isLoading) return <div>Loading reviews...</div>;
-  if (error) return <div>Error loading reviews: {error.message}</div>;
+  const { data: reviewList, refetch } = api.reviews.getAllReviews.useQuery();
 
-  // Split the reviews data into two groups for the two scrolling elements
-  const midpoint = Math.ceil((reviews?.length ?? 0) / 2);
-  const firstHalf = reviews?.slice(0, midpoint) ?? [];
-  const secondHalf = reviews?.slice(midpoint) ?? [];
+  useEffect(() => {
+    if (reviewList) {
+      setReviews([...reviewList, ...reviewList]); // Duplicate reviews for seamless looping
+    }
+  }, [reviewList]);
 
   return (
-    <>
-      <div className="logo-container overflow-hidden relative w-full">
-        <div className="scroll-parent">
-          <div className="scroll-element primary border border-gray-400">
-            {firstHalf.map((review) => (
-              <ReviewCard
-                key={review.id}
-                name={review.name}
-                companyName={review.companyName ?? ''}
-                image={review.imagePath ?? '/path-to-image/default.jpg'} // Use default image if none provided
-                review={review.reviewText}
-              />
-            ))}
-          </div>
-          <div className="scroll-element secondary">
-            {secondHalf.map((review) => (
-              <ReviewCard
-                key={review.id}
-                name={review.name}
-                companyName={review.companyName ?? ''}
-                image={review.imagePath ?? '/path-to-image/default.jpg'}
-                review={review.reviewText}
-              />
-            ))}
-          </div>
+    <div className="logo-container overflow-hidden relative w-full">
+      <div className="scroll-parent">
+        <div className="scroll-element primary">
+          {reviews.map((review, index) => (
+            <ReviewCard
+              key={`${review.id}-${index}`}
+              name={review.name}
+              companyName={review.companyName ?? ''}
+              image={`/${review.imagePath ?? 'path-to-default-image'}`}
+              review={review.reviewText}
+            />
+          ))}
         </div>
       </div>
 
       <style jsx>{`
-        *,
-        *::after,
-        *::before {
-          margin: 0;
-          padding: 0;
-          border: none;
-          outline: none;
-          box-sizing: border-box;
-        }
-
-        html {
-          font-size: 10px;
-        }
-
-        .container {
-          display: flex;
-          align-items: center;
-          height: 100vh;
-          width: 100vw;
-          overflow: hidden;
-        }
-
         .scroll-parent {
           position: relative;
           width: 100vw;
           height: 30rem;
-          padding: 2rem 0;
-          overflow-x: hidden;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
         }
 
         .scroll-element {
-          width: 100%;
-          height: 100%;
-          position: absolute;
-          left: 0%;
-          top: 0%;
           display: flex;
-          align-items: center;
-          justify-content: space-around;
-          gap: 1rem;
+          gap: 5rem;
+          animation: scroll 30s linear infinite;
         }
 
-        .scroll-element img {
-          width: 12rem;
-          height: auto;
-        }
-
-        .primary {
-          animation: primary 30s linear infinite;
-        }
-
-        .secondary {
-          animation: secondary 30s linear infinite;
-        }
-
-        @keyframes primary {
-          from {
-            left: 0%;
+        @keyframes scroll {
+          0% {
+            transform: translateX(0);
           }
-          to {
-            left: -100%;
-          }
-        }
-
-        @keyframes secondary {
-          from {
-            left: 100%;
-          }
-          to {
-            left: 0%;
+          100% {
+            transform: translateX(calc(-100% / 2)); /* Move by half the total length */
           }
         }
       `}</style>
-    </>
+    </div>
   );
 };
 

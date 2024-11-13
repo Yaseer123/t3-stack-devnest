@@ -55,39 +55,59 @@ export const RotateSphere = () => {
         </div>
     );
 };
-export const AbstractSphere = () => {
+export const RotateSphere1 = () => {
     return (
-        <div className="bg-black h-[100vh] w-[100vw]">
+        <div className="bg-neutral-850 h-[200px] w-[200px]">
             <Canvas
                 gl={{ antialias: true }}
                 dpr={[1, 1.5]}
                 className="h-full w-full"
-                camera={{ position: [0, 600, 600], fov: 50 }}
+                camera={{ position: [0, 600, 600], fov: 40 }}
             >
                 <directionalLight position={[-6, -6, -6]} intensity={4} />
                 <Environment preset="studio" />
-                <OrbitControls/>
                 <Suspense>
-                    <AbstractSphereModel /> {/* Render Model inside the Canvas */}
+                    <Model /> {/* Render Model inside the Canvas */}
                 </Suspense>
             </Canvas>
         </div>
     );
 };
+
+export const AbstractSphere = () => {
+  return (
+    <div className="bg-transparent h-[200px] w-[200px]"> {/* Adjusted size */}
+      <Canvas
+        gl={{ antialias: true }}
+        dpr={[1, 1.5]}
+        className="h-full w-full"
+        camera={{ position: [200, 100, 60], fov: 25 }} 
+      >
+        <directionalLight position={[2, 2, 2]} intensity={1.5} /> {/* Adjusted light position */}
+        <Environment preset="studio" />
+        <OrbitControls enableZoom={false} enablePan={false} enableRotate={true} />
+        <Suspense fallback={null}>
+          <AbstractSphereModel /> {/* Render Model inside the Canvas */}
+        </Suspense>
+      </Canvas>
+    </div>
+  );
+};
+
 export const AbstractShape = () => {
     return (
-        <div className="bg-black h-[100vh] w-[100vw]">
+        <div className="bg-neutral-850 h-[250px] w-[250px]"> {/* Reduced dimensions */}
             <Canvas
                 gl={{ antialias: true }}
                 dpr={[1, 1.5]}
                 className="h-full w-full"
-                camera={{ position: [0, -20, -20,], fov: 50 }}
+                camera={{ position: [0, 17, 15], fov: 1.5 }} 
             >
                 <directionalLight position={[-6, -6, -6]} intensity={4} />
                 <Environment preset="studio" />
-                <OrbitControls/>
-                <Suspense>
-                    <AbstractShapeModel /> {/* Render Model inside the Canvas */}
+                <OrbitControls enableZoom={false} />
+                <Suspense fallback={null}>
+                    <AbstractShapeModel />
                 </Suspense>
             </Canvas>
         </div>
@@ -114,12 +134,12 @@ export const Diamond = () => {
 };
 export const RobocraftCube = () => {
     return (
-        <div className="bg-black h-[100vh] w-[100vw]">
+        <div className="bg-natural-850  h-[200px] w-[200px]">
             <Canvas
                 gl={{ antialias: true }}
                 dpr={[1, 1.5]}
                 className="h-full w-full"
-                camera={{ position: [0, 100, 100], fov: 50 }}
+                camera={{ position: [0, 55, 55], fov: 8 }}
             >
                 <directionalLight position={[-6, -6, -6]} intensity={4} />
                 <Environment preset="studio" />

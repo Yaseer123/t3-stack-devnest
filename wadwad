@@ -1,7 +1,8 @@
 import React from 'react';
 import { api } from "~/trpc/react";
 import ServiceItem from './OurServicesItems';
-import { AbstractShape, AbstractSphere, RobocraftCube, RotateSphere1 } from './ThreeDModel'; // Import the 3D model
+import { AbstractSphere } from './ThreeDModel'; // Import the 3D model
+// import { FaArrowDown } from 'react-icons/fa'; // Import an arrow icon
 
 interface ActiveService {
   content: string;
@@ -52,18 +53,21 @@ const OurServicesSection: React.FC = () => {
       </div>
 
       {/* Full-width line */}
-      <div className="space-y-8  w-full border-t border-stone-500 my-4"></div>
+      <div className="w-full border-t border-stone-500 my-4"></div>
 
       {/* Header Row with Arrows */}
       <div className="flex justify-between items-center w-full max-w-[1110px] px-4 mt-4 text-center text-xl font-semibold">
         <div className="flex flex-col items-center">
           <span>Services</span>
+          {/* <FaArrowDown className="text-lg mt-1" /> */}
         </div>
         <div className="flex flex-col items-center">
           <span>Features</span>
+          {/* <FaArrowDown className="text-lg mt-1" /> */}
         </div>
         <div className="flex flex-col items-center">
           <span>3D Illustration</span>
+          {/* <FaArrowDown className="text-lg mt-1" /> */}
         </div>
       </div>
 
@@ -74,13 +78,7 @@ const OurServicesSection: React.FC = () => {
             key={index} 
             {...service} 
             persistentBackground={index === 0} 
-            render3DModel={
-              index === 0 ? <AbstractSphere /> :  // 3D model for the first row
-              index === 1 ? <AbstractShape /> :    // 3D model for the second row
-              index === 2 ? <RobocraftCube /> :    // 3D model for the second row
-              index === 3 ? <RotateSphere1 /> :    // 3D model for the second row
-              null
-            } 
+            render3DModel={index === 0 ? <AbstractSphere /> : null} 
           />
         ))}
       </div>
